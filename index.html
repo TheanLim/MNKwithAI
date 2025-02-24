@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MNK Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            margin: 0 10px;
+        }
+        input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            margin: 20px 0;
+            font-size: 18px;
+            color: #555;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(var(--n), 1fr);
+            gap: 5px;
+            margin: 20px auto;
+            width: fit-content;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .cell {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            background-color: #fff;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        .cell:hover {
+            background-color: #f0f0f0;
+            transform: scale(1.05);
+        }
+        .cell.x {
+            color: #ff6347; /* Tomato color for X */
+        }
+        .cell.o {
+            color: #4682b4; /* Steel blue for O */
+        }
+        .cell.last-move {
+            background-color: #ffff99; /* Light yellow for last move */
+        }
+    </style>
+</head>
+<body>
+    <h1>MNK Game</h1>
+    <label>M (rows): <input type="number" id="m" min="1" value="3"></label>
+    <label>N (columns): <input type="number" id="n" min="1" value="3"></label>
+    <label>K (in a row to win): <input type="number" id="k" min="1" value="3"></label>
+    <label>AI Time Limit (s): <input type="number" id="timeLimit" min="1" value="5"></label>
+    <label><input type="radio" name="starter" value="user" checked> User starts (X)</label>
+    <label><input type="radio" name="starter" value="ai"> AI starts (O)</label>
+    <button id="start">Start Game</button>
+    <div id="status"></div>
+    <div id="board" class="board"></div>
+
+    <script>
+        // DOM elements
+        const mInput = document.getElementById('m');
+        const nInput = document.getElementById('n');
+        const kInput = document.getElementById('k');
+        const timeLimitInput = document.getElementById('timeLimit');
+        const startButton = document.getElementById('start');
+        const statusDiv = document.getElementById('status');
+        const boardDiv = document.getElementById('board');
+
+        // Global game variables
+        let M, N, K;
+        let board;
+        let currentPlayer;
+        let gameOver = false;
+        let startTime;
+        let timeLimitMS;
+        let winningLines;
+        let lineCount; // New global variable for line counts
+        let lastMoveCell = null;
+        const transpositionTable = new Map();
+
+        // Start game button event listener
+        startButton.addEventListener('click', () => {
+            M = parseInt(mInput.value);
+            N = parseInt(nInput.value);
+            K = parseInt(kInput.value);
+            timeLimitMS = parseInt(timeLimitInput.value) * 1000; // Convert to milliseconds
+            if (isNaN(M) || isNaN(N) || isNaN(K) || M < 1 || N < 1 || K < 1 || K > Math.max(M, N)) {
+                statusDiv.textContent = 'Invalid inputs. Ensure M, N, K are positive and K ≤ max(M, N).';
+                return;
+            }
+            startGame();
+        });
+
+        // Generate all possible winning lines
+        function generateWinningLines(M, N, K) {
+            const lines = [];
+            // Rows
+            for (let i = 0; i < M; i++) {
+                for (let j = 0; j <= N - K; j++) {
+                    const line = [];
+                    for (let k = 0; k < K; k++) {
+                        line.push([i, j + k]);
+                    }
+                    lines.push(line);
+                }
+            }
+            // Columns
+            for (let j = 0; j < N; j++) {
+                for (let i = 0; i <= M - K; i++) {
+                    const line = [];
+                    for (let k = 0; k < K; k++) {
+                        line.push([i + k, j]);
+                    }
+                    lines.push(line);
+                }
+            }
+            // Main diagonals
+            for (let i = 0; i <= M - K; i++) {
+                for (let j = 0; j <= N - K; j++) {
+                    const line = [];
+                    for (let k = 0; k < K; k++) {
+                        line.push([i + k, j + k]);
+                    }
+                    lines.push(line);
+                }
+            }
+            // Anti-diagonals
+            for (let i = 0; i <= M - K; i++) {
+                for (let j = K - 1; j < N; j++) {
+                    const line = [];
+                    for (let k = 0; k < K; k++) {
+                        line.push([i + k, j - k]);
+                    }
+                    lines.push(line);
+                }
+            }
+            return lines;
+        }
+
+        // Heuristic to evaluate board position
+        function computeScore(board, player, winningLines) {
+            const opponent = 3 - player;
+            let baseScore = 0;
+            const cellCount = Array.from({ length: M }, () => Array(N).fill(0));
+            for (const line of winningLines) {
+                let P = 0;
+                let O = 0;
+                const emptyCells = [];
+                for (const [i, j] of line) {
+                    if (board[i][j] === player) P++;
+                    else if (board[i][j] === opponent) O++;
+                    else emptyCells.push([i, j]);
+                }
+                if (O === 0) {
+                    baseScore += P * P;
+                    for (const [i, j] of emptyCells) {
+                        cellCount[i][j]++;
+                    }
+                }
+            }
+            let forkScore = 0;
+            for (let i = 0; i < M; i++) {
+                for (let j = 0; j < N; j++) {
+                    if (board[i][j] === 0) {
+                        forkScore += cellCount[i][j];
+                    }
+                }
+            }
+            return baseScore + forkScore;
+        }
+
+        // Check for immediate win or block
+        function checkImmediateWin(board, player) {
+            for (const line of winningLines) {
+                let count = 0;
+                let empty = null;
+                for (const [i, j] of line) {
+                    if (board[i][j] === player) {
+                        count++;
+                    } else if (board[i][j] === 0) {
+                        if (empty === null) {
+                            empty = [i, j];
+                        } else {
+                            empty = null;
+                            break;
+                        }
+                    } else {
+                        empty = null;
+                        break;
+                    }
+                }
+                if (count === K - 1 && empty !== null) {
+                    return empty;
+                }
+            }
+            return null;
+        }
+
+        // Initialize the game
+        function startGame() {
+            board = Array.from({ length: M }, () => Array(N).fill(0));
+            gameOver = false;
+            lastMoveCell = null;
+            transpositionTable.clear();
+            winningLines = generateWinningLines(M, N, K);
+            lineCount = Array.from({ length: M }, () => Array(N).fill(0));
+            for (const line of winningLines) {
+                for (const [i, j] of line) {
+                    lineCount[i][j]++;
+                }
+            }
+            renderBoard();
+            setupClickListeners();
+            const starter = document.querySelector('input[name="starter"]:checked').value;
+            if (starter === 'user') {
+                currentPlayer = 1;
+                statusDiv.textContent = "Your turn (X)";
+            } else {
+                currentPlayer = 2;
+                statusDiv.textContent = "AI is thinking...";
+                setTimeout(aiMove, 0);
+            }
+        }
+
+        // Render the game board
+        function renderBoard() {
+            boardDiv.style.setProperty('--n', N);
+            boardDiv.innerHTML = '';
+            for (let i = 0; i < M; i++) {
+                for (let j = 0; j < N; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    boardDiv.appendChild(cell);
+                }
+            }
+        }
+
+        // Set up click listeners for player moves
+        function setupClickListeners() {
+            const cells = boardDiv.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                cell.addEventListener('click', () => {
+                    const i = Math.floor(index / N);
+                    const j = index % N;
+                    if (board[i][j] === 0 && currentPlayer === 1 && !gameOver) {
+                        makeMove(i, j, 1);
+                        if (checkWin(1)) {
+                            statusDiv.textContent = "You win!";
+                            gameOver = true;
+                        } else if (isBoardFull()) {
+                            statusDiv.textContent = "Draw!";
+                            gameOver = true;
+                        } else {
+                            currentPlayer = 2;
+                            statusDiv.textContent = "AI is thinking...";
+                            setTimeout(aiMove, 0);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Make a move and update the board
+        function makeMove(i, j, player) {
+            board[i][j] = player;
+            const index = i * N + j;
+            const cell = boardDiv.children[index];
+            cell.textContent = player === 1 ? 'X' : 'O';
+            cell.classList.add(player === 1 ? 'x' : 'o');
+            if (lastMoveCell) {
+                lastMoveCell.classList.remove('last-move');
+            }
+            lastMoveCell = cell;
+            lastMoveCell.classList.add('last-move');
+        }
+
+        // AI move with iterative deepening
+        function aiMove() {
+            // Quick check for immediate win
+            const immediateWin = checkImmediateWin(board, 2);
+            if (immediateWin) {
+                const [i, j] = immediateWin;
+                makeMove(i, j, 2);
+                statusDiv.textContent = "AI wins!";
+                gameOver = true;
+                return;
+            }
+            
+            // Quick check for immediate block
+            const immediateBlock = checkImmediateWin(board, 1);
+            if (immediateBlock) {
+                const [i, j] = immediateBlock;
+                makeMove(i, j, 2);
+                if (checkWin(2)) {
+                    statusDiv.textContent = "AI wins!";
+                    gameOver = true;
+                } else if (isBoardFull()) {
+                    statusDiv.textContent = "Draw!";
+                    gameOver = true;
+                } else {
+                    currentPlayer = 1;
+                    statusDiv.textContent = "Your turn (X)";
+                }
+                return;
+            }
+            
+            startTime = Date.now();
+            let depth = 1;
+            let bestMove = null;
+            while (true) {
+                let result = minimax(board, depth, true, -Infinity, Infinity);
+                if (result === null || Date.now() - startTime > timeLimitMS) break;
+                if (result.move) {
+                    bestMove = result.move;
+                }
+                depth++;
+            }
+            if (bestMove) {
+                makeMove(bestMove.i, bestMove.j, 2);
+                if (checkWin(2)) {
+                    statusDiv.textContent = "AI wins!";
+                    gameOver = true;
+                } else if (isBoardFull()) {
+                    statusDiv.textContent = "Draw!";
+                    gameOver = true;
+                } else {
+                    currentPlayer = 1;
+                    statusDiv.textContent = "Your turn (X)";
+                }
+            } else {
+                statusDiv.textContent = "AI cannot make a move";
+            }
+        }
+
+        // Convert board to a string key for transposition table
+        function getBoardKey(board) {
+            return board.map(row => row.join('')).join('/');
+        }
+
+        function minimax(board, depth, isMaximizing, alpha, beta) {
+            if (Date.now() - startTime > timeLimitMS) return null;
+            const key = getBoardKey(board);
+        
+            // Check terminal states
+            if (checkWin(2)) {
+                const result = { score: 1, depth: 1000 };
+                transpositionTable.set(key, result);
+                return result;
+            } else if (checkWin(1)) {
+                const result = { score: -1, depth: 1000 };
+                transpositionTable.set(key, result);
+                return result;
+            } else if (isBoardFull()) {
+                const result = { score: 0, depth: 1000 };
+                transpositionTable.set(key, result);
+                return result;
+            }
+        
+            // Check transposition table
+            if (transpositionTable.has(key)) {
+                const stored = transpositionTable.get(key);
+                if (stored.depth >= depth) {
+                    return stored;
+                }
+            }
+        
+            if (depth === 0) {
+                const score = heuristic(board);
+                const result = { score: score, depth: 0 };
+                transpositionTable.set(key, result);
+                return result;
+            }
+        
+            // Get possible moves, already sorted by lineCount
+            const allMoves = getPossibleMoves(board);
+            let orderedMoves = [];
+            if (transpositionTable.has(key)) {
+                const stored = transpositionTable.get(key);
+                if (stored.move) {
+                    const bestMove = stored.move;
+                    orderedMoves.push(bestMove);
+                    // Remove bestMove from allMoves to avoid duplication
+                    const filteredMoves = allMoves.filter(m => m.i !== bestMove.i || m.j !== bestMove.j);
+                    orderedMoves = orderedMoves.concat(filteredMoves);
+                } else {
+                    orderedMoves = allMoves;
+                }
+            } else {
+                orderedMoves = allMoves;
+            }
+        
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                let bestMove = null;
+                for (const move of orderedMoves) {
+                    board[move.i][move.j] = 2;
+                    const result = minimax(board, depth - 1, false, alpha, beta);
+                    board[move.i][move.j] = 0;
+                    if (result === null) return null;
+                    if (result.score > bestScore) {
+                        bestScore = result.score;
+                        bestMove = move;
+                    }
+                    alpha = Math.max(alpha, bestScore);
+                    if (beta <= alpha) break;
+                }
+                const result = { score: bestScore, move: bestMove, depth: depth };
+                transpositionTable.set(key, result);
+                return result;
+            } else {
+                let bestScore = Infinity;
+                let bestMove = null;
+                for (const move of orderedMoves) {
+                    board[move.i][move.j] = 1;
+                    const result = minimax(board, depth - 1, true, alpha, beta);
+                    board[move.i][move.j] = 0;
+                    if (result === null) return null;
+                    if (result.score < bestScore) {
+                        bestScore = result.score;
+                        bestMove = move;
+                    }
+                    beta = Math.min(beta, bestScore);
+                    if (beta <= alpha) break;
+                }
+                const result = { score: bestScore, move: bestMove, depth: depth };
+                transpositionTable.set(key, result);
+                return result;
+            }
+        }
+
+        // Heuristic evaluation
+        function heuristic(board) {
+            const scoreAI = computeScore(board, 2, winningLines);
+            const scorePlayer = computeScore(board, 1, winningLines);
+            return scoreAI - scorePlayer;
+        }
+
+        // Get possible moves, sorted by lineCount
+        function getPossibleMoves(board) {
+            const moves = [];
+            for (let i = 0; i < M; i++) {
+                for (let j = 0; j < N; j++) {
+                    if (board[i][j] === 0) {
+                        moves.push({ i, j, lines: lineCount[i][j] });
+                    }
+                }
+            }
+            moves.sort((a, b) => b.lines - a.lines); // Descending order
+            return moves.map(m => ({ i: m.i, j: m.j }));
+        }
+
+        // Check for a win
+        function checkWin(player) {
+            for (const line of winningLines) {
+                if (line.every(([i, j]) => board[i][j] === player)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Check if board is full
+        function isBoardFull() {
+            for (let i = 0; i < M; i++) {
+                for (let j = 0; j < N; j++) {
+                    if (board[i][j] === 0) return false;
+                }
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>
