@@ -112,7 +112,7 @@
         let startTime;
         let timeLimitMS;
         let winningLines;
-        let lineCount; // New global variable for line counts
+        let lineCount;
         let lastMoveCell = null;
         const transpositionTable = new Map();
 
@@ -175,36 +175,24 @@
             return lines;
         }
 
-        // Heuristic to evaluate board position
+        // Compute score for a player
         function computeScore(board, player, winningLines) {
             const opponent = 3 - player;
-            let baseScore = 0;
-            const cellCount = Array.from({ length: M }, () => Array(N).fill(0));
+            let score = 0;
             for (const line of winningLines) {
                 let P = 0;
                 let O = 0;
-                const emptyCells = [];
                 for (const [i, j] of line) {
                     if (board[i][j] === player) P++;
                     else if (board[i][j] === opponent) O++;
-                    else emptyCells.push([i, j]);
                 }
-                if (O === 0) {
-                    baseScore += P * P;
-                    for (const [i, j] of emptyCells) {
-                        cellCount[i][j]++;
-                    }
+                if (O === 0 && P > 0) { // Unblocked line for player
+                    if (P === K - 1) score += 100;
+                    else if (P === K - 2) score += 10;
+                    else score += P * 2;
                 }
             }
-            let forkScore = 0;
-            for (let i = 0; i < M; i++) {
-                for (let j = 0; j < N; j++) {
-                    if (board[i][j] === 0) {
-                        forkScore += cellCount[i][j];
-                    }
-                }
-            }
-            return baseScore + forkScore;
+            return score;
         }
 
         // Check for immediate win or block
@@ -314,7 +302,6 @@
 
         // AI move with iterative deepening
         function aiMove() {
-            // Quick check for immediate win
             const immediateWin = checkImmediateWin(board, 2);
             if (immediateWin) {
                 const [i, j] = immediateWin;
@@ -323,8 +310,7 @@
                 gameOver = true;
                 return;
             }
-            
-            // Quick check for immediate block
+
             const immediateBlock = checkImmediateWin(board, 1);
             if (immediateBlock) {
                 const [i, j] = immediateBlock;
@@ -341,7 +327,7 @@
                 }
                 return;
             }
-            
+
             startTime = Date.now();
             let depth = 1;
             let bestMove = null;
@@ -375,11 +361,11 @@
             return board.map(row => row.join('')).join('/');
         }
 
+        // Minimax with alpha-beta pruning
         function minimax(board, depth, isMaximizing, alpha, beta) {
             if (Date.now() - startTime > timeLimitMS) return null;
             const key = getBoardKey(board);
-        
-            // Check terminal states
+
             if (checkWin(2)) {
                 const result = { score: 1, depth: 1000 };
                 transpositionTable.set(key, result);
@@ -393,23 +379,21 @@
                 transpositionTable.set(key, result);
                 return result;
             }
-        
-            // Check transposition table
+
             if (transpositionTable.has(key)) {
                 const stored = transpositionTable.get(key);
                 if (stored.depth >= depth) {
                     return stored;
                 }
             }
-        
+
             if (depth === 0) {
                 const score = heuristic(board);
                 const result = { score: score, depth: 0 };
                 transpositionTable.set(key, result);
                 return result;
             }
-        
-            // Get possible moves, already sorted by lineCount
+
             const allMoves = getPossibleMoves(board);
             let orderedMoves = [];
             if (transpositionTable.has(key)) {
@@ -417,7 +401,6 @@
                 if (stored.move) {
                     const bestMove = stored.move;
                     orderedMoves.push(bestMove);
-                    // Remove bestMove from allMoves to avoid duplication
                     const filteredMoves = allMoves.filter(m => m.i !== bestMove.i || m.j !== bestMove.j);
                     orderedMoves = orderedMoves.concat(filteredMoves);
                 } else {
@@ -426,7 +409,7 @@
             } else {
                 orderedMoves = allMoves;
             }
-        
+
             if (isMaximizing) {
                 let bestScore = -Infinity;
                 let bestMove = null;
@@ -466,24 +449,45 @@
             }
         }
 
-        // Heuristic evaluation
+        // Heuristic evaluation with center bonus
         function heuristic(board) {
             const scoreAI = computeScore(board, 2, winningLines);
             const scorePlayer = computeScore(board, 1, winningLines);
-            return scoreAI - scorePlayer;
-        }
-
-        // Get possible moves, sorted by lineCount
-        function getPossibleMoves(board) {
-            const moves = [];
+            let centerBonus = 0;
+            const centerI = Math.floor(M / 2);
+            const centerJ = Math.floor(N / 2);
             for (let i = 0; i < M; i++) {
                 for (let j = 0; j < N; j++) {
-                    if (board[i][j] === 0) {
-                        moves.push({ i, j, lines: lineCount[i][j] });
+                    if (board[i][j] === 2) { // AI pieces
+                        const distance = Math.abs(i - centerI) + Math.abs(j - centerJ);
+                        centerBonus += 1 / (1 + distance);
                     }
                 }
             }
-            moves.sort((a, b) => b.lines - a.lines); // Descending order
+            return scoreAI - scorePlayer + centerBonus;
+        }
+
+        // Get possible moves, sorted by priority
+        function getPossibleMoves(board) {
+            const moves = [];
+            const directions = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
+            for (let i = 0; i < M; i++) {
+                for (let j = 0; j < N; j++) {
+                    if (board[i][j] === 0) {
+                        let adjacent = 0;
+                        for (const [di, dj] of directions) {
+                            const ni = i + di;
+                            const nj = j + dj;
+                            if (ni >= 0 && ni < M && nj >= 0 && nj < N && board[ni][nj] !== 0) {
+                                adjacent++;
+                            }
+                        }
+                        const priority = adjacent * 10 + lineCount[i][j];
+                        moves.push({ i, j, priority });
+                    }
+                }
+            }
+            moves.sort((a, b) => b.priority - a.priority); // Descending order
             return moves.map(m => ({ i: m.i, j: m.j }));
         }
 
