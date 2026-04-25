@@ -3,1235 +3,1078 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MNK Game - Enhanced</title>
+    <title>MNK Pro - Ultimate Strategy Game</title>
     <style>
         :root {
+            /* Light mode colors */
             --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --panel-bg: rgba(255, 255, 255, 0.95);
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --primary: #5e72e4;
-            --secondary: #8392ab;
-            --success: #2dce89;
-            --warning: #fb6340;
-            --danger: #f5365c;
-            --dark: #32325d;
-            --light: #f7f9fc;
-            --border-radius: 12px;
+            --surface-bg: rgba(255, 255, 255, 0.92);
+            --surface-border: rgba(255, 255, 255, 0.25);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --accent: #5e72e4;
+            --accent-light: rgba(94, 114, 228, 0.1);
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --cell-bg: rgba(255, 255, 255, 0.85);
+            --cell-hover: rgba(255, 255, 255, 0.98);
+            --cell-disabled: rgba(255, 255, 255, 0.7);
+            --border-color: rgba(255, 255, 255, 0.3);
+            --glass-blur: blur(14px);
+            --border-radius: 16px;
             --cell-size: 70px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --glass-bg: rgba(255, 255, 255, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.18);
-            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body.dark-mode {
+            --bg-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --surface-bg: rgba(15, 23, 42, 0.9);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #818cf8;
+            --accent-light: rgba(129, 140, 248, 0.2);
+            --cell-bg: rgba(30, 41, 59, 0.85);
+            --cell-hover: rgba(51, 65, 85, 0.95);
+            --cell-disabled: rgba(30, 41, 59, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: var(--font-family);
             background: var(--bg-gradient);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            color: var(--dark);
+            color: var(--text-primary);
+            transition: background 0.4s, color 0.3s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 850px;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
-        .game-header {
+        /* Header */
+        .header {
             text-align: center;
             color: white;
-            margin-bottom: 30px;
         }
-
-        .game-header h1 {
+        .header h1 {
             font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-weight: 800;
+            margin-bottom: 0.2rem;
             letter-spacing: -0.5px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-
-        .game-header p {
-            font-size: 1.1rem;
+        .header p {
+            font-size: 1.05rem;
             opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
+            font-weight: 500;
         }
 
-        .control-panel {
-            background: var(--panel-bg);
-            padding: 25px;
+        /* Panels */
+        .panel {
+            background: var(--surface-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--border-radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            transition: background 0.3s, border 0.3s;
+        }
+
+        /* Settings using details/summary */
+        details.settings {
+            background: var(--surface-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--surface-border);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-            margin-bottom: 25px;
-            backdrop-filter: blur(4px);
+            overflow: hidden;
+            transition: all 0.3s;
         }
-
-        .controls-grid {
+        details.settings[open] {
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+        summary {
+            padding: 16px 24px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            background: transparent;
+            border-bottom: 1px solid transparent;
+            transition: background 0.2s;
+        }
+        details[open] summary {
+            border-bottom: 1px solid var(--border-color);
+            background: var(--accent-light);
+        }
+        summary:hover {
+            background: var(--accent-light);
+        }
+        .settings-content {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .settings-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 20px;
-            margin-bottom: 20px;
         }
-
-        .control-group {
+        .setting-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
-
-        .control-group label {
-            font-size: 0.9rem;
+        .setting-group label {
+            font-size: 0.85rem;
             font-weight: 600;
-            color: var(--dark);
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: 5px;
-            min-height: 24px;
-            flex-wrap: nowrap;
+            gap: 4px;
         }
-
-        .control-group input[type="number"] {
-            padding: 12px;
+        .setting-group input[type="number"] {
+            padding: 10px 12px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             font-size: 1rem;
-            transition: var(--transition);
             font-weight: 500;
+            background: rgba(255,255,255,0.8);
+            transition: all 0.2s;
             width: 100%;
+            color: var(--text-primary);
         }
-
-        .control-group input[type="number"]:focus {
+        body.dark-mode .setting-group input[type="number"] {
+            background: rgba(0,0,0,0.2);
+            border-color: #334155;
+            color: white;
+        }
+        .setting-group input:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.1);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
         }
 
-        .radio-group {
+        .radio-group, .checkbox-group {
             display: flex;
-            gap: 15px;
+            gap: 16px;
             flex-wrap: wrap;
+            align-items: center;
         }
-
-        .radio-option {
+        .radio-option, .check-option {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 6px;
-            transition: var(--transition);
-            background: var(--light);
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: background 0.2s;
+            background: rgba(0,0,0,0.02);
+            font-size: 0.9rem;
+        }
+        body.dark-mode .radio-option {
+            background: rgba(255,255,255,0.05);
+        }
+        .radio-option:hover, .check-option:hover {
+            background: var(--accent-light);
+        }
+        input[type="radio"], input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 16px;
+            height: 16px;
         }
 
-        .radio-option:hover {
-            background: rgba(94, 114, 228, 0.1);
-            transform: translateY(-2px);
+        /* Game info bar */
+        .game-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .status-card {
+            flex: 1;
+            background: var(--surface-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--border-radius);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow);
+            transition: background 0.3s, border 0.3s;
+        }
+        .status-icon {
+            font-size: 2rem;
+        }
+        .status-text {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .status-sub {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
-        .radio-option input[type="radio"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        button {
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-        }
-
-        .btn-primary {
-            background: var(--primary);
+        .btn {
+            background: var(--accent);
             color: white;
-            padding: 14px 35px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(94, 114, 228, 0.3);
-            position: relative;
-            overflow: hidden;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            white-space: nowrap;
         }
-
-        .btn-primary:hover {
-            background: #4c63d2;
+        .btn:hover {
+            filter: brightness(1.1);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(94, 114, 228, 0.4);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
-
-        .btn-primary:active {
+        .btn:active {
             transform: translateY(0);
         }
-
-        .btn-primary:disabled {
-            background: var(--secondary);
-            cursor: not-allowed;
+        .btn:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: none;
             transform: none;
             box-shadow: none;
         }
-
-        .game-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            gap: 20px;
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            box-shadow: none;
+        }
+        .btn-outline:hover {
+            background: var(--accent-light);
         }
 
-        .status-panel {
-            flex: 1;
-            background: var(--light);
-            padding: 18px 25px;
-            border-radius: var(--border-radius);
-            border-left: 4px solid var(--primary);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .status-panel.turn-x {
-            border-left-color: var(--danger);
-        }
-
-        .status-panel.turn-o {
-            border-left-color: var(--primary);
-        }
-
-        .status-panel.winner-x {
-            border-left-color: var(--danger);
-            background: rgba(245, 54, 92, 0.1);
-        }
-
-        .status-panel.winner-o {
-            border-left-color: var(--primary);
-            background: rgba(94, 114, 228, 0.1);
-        }
-
-        .status-panel.draw {
-            border-left-color: var(--warning);
-            background: rgba(251, 99, 64, 0.1);
-        }
-
-        .status-icon {
-            font-size: 1.8rem;
-            flex-shrink: 0;
-        }
-
-        .status-content {
-            flex: 1;
-        }
-
-        #status {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--dark);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            margin-bottom: 4px;
-        }
-
-        .status-hint {
-            font-size: 0.85rem;
-            color: var(--secondary);
-            font-weight: 500;
-        }
-
-        .reset-btn {
-            background: var(--primary);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            display: none;
-            white-space: nowrap;
-            box-shadow: 0 4px 10px rgba(94, 114, 228, 0.3);
-        }
-
-        .reset-btn:hover {
-            background: #4c63d2;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(94, 114, 228, 0.4);
-        }
-
-        .board-container {
+        /* Board */
+        .board-wrapper {
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 300px;
-            position: relative;
+            min-height: 250px;
         }
-
         .board {
             display: grid;
-            grid-template-columns: repeat(var(--n), var(--cell-size));
-            grid-template-rows: repeat(var(--m), var(--cell-size));
             gap: 8px;
-            background: var(--glass-bg);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--glass-shadow);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            position: relative;
-            transition: var(--transition);
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            transition: all 0.3s;
         }
-
         .cell {
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
+            aspect-ratio: 1 / 1;
+            width: var(--cell-size);
+            background: var(--cell-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2.5rem;
             font-weight: 700;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
             position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            color: transparent;
+            backdrop-filter: blur(6px);
         }
-
-        .cell::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: radial-gradient(circle, rgba(94, 114, 228, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.4s, height 0.4s;
+        .cell:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
         }
-
-        .cell:hover::before {
-            width: 120%;
-            height: 120%;
+        .cell:hover:not(.disabled) {
+            background: var(--cell-hover);
+            transform: scale(1.04);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+            z-index: 2;
         }
-
-        .cell:hover {
-            background: rgba(255, 255, 255, 0.95);
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            z-index: 1;
-        }
-
         .cell.x {
             color: var(--danger);
-            animation: placeX 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
         .cell.o {
-            color: var(--primary);
-            animation: placeO 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--accent);
         }
-
         .cell.last-move {
-            background: rgba(255, 235, 59, 0.25);
-            border: 2px solid #ffeb3b;
-            box-shadow: 0 0 15px rgba(255, 235, 59, 0.4);
+            box-shadow: 0 0 0 3px var(--warning);
         }
-
         .cell.winning {
-            background: rgba(45, 206, 137, 0.25);
-            border: 2px solid var(--success);
-            animation: pulse 1s infinite;
-            box-shadow: 0 0 15px rgba(45, 206, 137, 0.4);
+            background: rgba(16, 185, 129, 0.2);
+            animation: pulseWin 1.2s infinite;
         }
-
         .cell.disabled {
             cursor: not-allowed;
             opacity: 0.7;
+            pointer-events: none;
         }
-
-        .cell.disabled:hover {
-            background: rgba(255, 255, 255, 0.85);
-            transform: none;
-        }
-
-        .ai-thinking {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-            z-index: 10;
-            text-align: center;
-        }
-
-        .ai-thinking.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            box-shadow: 0 0 20px rgba(94, 114, 228, 0.3);
-            margin: 0 auto 10px;
-        }
-
-        .ai-thinking p {
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes placeX {
-            0% {
-                transform: scale(0) rotate(-180deg);
-                opacity: 0;
-            }
-            50% {
-                transform: scale(1.2) rotate(-90deg);
-            }
-            100% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
-        }
-
-        @keyframes placeO {
-            0% {
-                transform: scale(0) rotate(180deg);
-                opacity: 0;
-            }
-            50% {
-                transform: scale(1.2) rotate(90deg);
-            }
-            100% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 15px rgba(45, 206, 137, 0.4);
-            }
-            50% {
-                transform: scale(1.02);
-                box-shadow: 0 0 25px rgba(45, 206, 137, 0.6);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
-        }
-
-        .settings-btn {
-            background: var(--secondary);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(131, 146, 171, 0.3);
-        }
-
-        .settings-btn:hover {
-            background: #6d7f9a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(131, 146, 171, 0.4);
-        }
-
-        .settings-panel {
-            display: none;
-            animation: slideDown 0.3s ease;
-        }
-
-        .settings-panel.show {
-            display: block;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .difficulty-indicator {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 6px;
-            background: rgba(94, 114, 228, 0.15);
-            color: var(--primary);
-            white-space: nowrap;
-        }
-
-        .move-indicator {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 20px;
-            height: 20px;
-            background: var(--warning);
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            animation: bounce 0.5s ease;
-            z-index: 5;
-        }
-
-        .move-indicator.x {
-            background: var(--danger);
-        }
-
-        .move-indicator.o {
-            background: var(--primary);
-        }
-
-        @keyframes bounce {
+        @keyframes pulseWin {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
+            50% { transform: scale(1.03); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .cell.x, .cell.o {
+            animation: popIn 0.35s ease-out;
         }
 
-        @media (max-width: 768px) {
-            .controls-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .game-header h1 {
-                font-size: 2rem;
-            }
-            
-            .game-info {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .status-panel {
-                text-align: center;
-            }
-            
+        /* AI thinking overlay */
+        .ai-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(3px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            z-index: 10;
+            transition: opacity 0.3s;
+        }
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Dark mode toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--surface-bg);
+            border: 1px solid var(--surface-border);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.3rem;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s;
+            z-index: 20;
+            color: var(--text-primary);
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 640px) {
             :root {
                 --cell-size: 55px;
             }
-            
-            .board {
-                padding: 15px;
-                gap: 6px;
+            .settings-grid {
+                grid-template-columns: 1fr;
             }
-            
-            .cell {
-                font-size: 2rem;
+            .header h1 {
+                font-size: 2.2rem;
             }
-            
-            .difficulty-indicator {
-                font-size: 0.65rem;
-                padding: 1px 6px;
-                margin-left: 4px;
+            .btn {
+                padding: 10px 18px;
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌓</button>
+
     <div class="container">
-        <div class="game-header">
-            <h1>MNK Game</h1>
-            <p>Play Tic-Tac-Toe with adjustable board size and AI difficulty</p>
-        </div>
+        <header class="header">
+            <h1>MNK Pro</h1>
+            <p>Customizable board • Smart AI • Multiplayer</p>
+        </header>
 
-        <div class="control-panel">
-            <button id="settingsToggle" class="settings-btn">⚙️ Settings</button>
-            
-            <div id="settingsPanel" class="settings-panel">
-                <div class="controls-grid">
-                    <div class="control-group">
-                        <label for="m">📐 Rows<span class="difficulty-indicator">M</span></label>
-                        <input type="number" id="m" min="3" max="15" value="3">
+        <!-- Settings panel -->
+        <details class="settings" id="settingsPanel">
+            <summary>⚙️ Game Settings</summary>
+            <div class="settings-content">
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label>📐 Rows (M)</label>
+                        <input type="number" id="mInput" min="3" max="12" value="3">
                     </div>
-                    <div class="control-group">
-                        <label for="n">📏 Columns<span class="difficulty-indicator">N</span></label>
-                        <input type="number" id="n" min="3" max="15" value="3">
+                    <div class="setting-group">
+                        <label>📏 Columns (N)</label>
+                        <input type="number" id="nInput" min="3" max="12" value="3">
                     </div>
-                    <div class="control-group">
-                        <label for="k">🏆 Win Length<span class="difficulty-indicator">K</span></label>
-                        <input type="number" id="k" min="3" max="15" value="3">
+                    <div class="setting-group">
+                        <label>🎯 Win length (K)</label>
+                        <input type="number" id="kInput" min="3" max="10" value="3">
                     </div>
-                    <div class="control-group">
-                        <label for="timeLimit">⏱️ AI Time<span class="difficulty-indicator">Strategy</span></label>
-                        <input type="number" id="timeLimit" min="1" max="30" value="5">
+                    <div class="setting-group">
+                        <label>🧠 AI Time Limit (s)</label>
+                        <input type="number" id="timeInput" min="1" max="25" value="4" step="0.5">
                     </div>
                 </div>
-                
-                <div class="control-group">
-                    <label>🎯 Starting Player</label>
+                <div class="setting-group">
+                    <label>🎮 Game Mode</label>
+                    <div class="radio-group" id="modeGroup">
+                        <label class="radio-option"><input type="radio" name="mode" value="ai" checked> vs AI</label>
+                        <label class="radio-option"><input type="radio" name="mode" value="pvp"> Two Players</label>
+                    </div>
+                </div>
+                <div class="setting-group" id="starterGroup">
+                    <label>🚩 First Move</label>
                     <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="starter" value="user" id="userStart" checked>
-                            <label for="userStart">You (X)</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="starter" value="ai" id="aiStart">
-                            <label for="aiStart">AI (O)</label>
-                        </div>
+                        <label class="radio-option"><input type="radio" name="starter" value="user" checked> You (X)</label>
+                        <label class="radio-option"><input type="radio" name="starter" value="ai"> AI (O)</label>
                     </div>
                 </div>
-            </div>
-
-            <button id="start" class="btn-primary">🎮 Start New Game</button>
-        </div>
-
-        <div class="game-info">
-            <div id="statusPanel" class="status-panel">
-                <div class="status-icon" id="statusIcon">🎮</div>
-                <div class="status-content">
-                    <div id="status">Press 'Start New Game' to begin</div>
-                    <div class="status-hint" id="statusHint">Configure settings or start playing</div>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <button class="btn" id="applySettingsBtn">✅ Apply & New Game</button>
+                    <button class="btn btn-outline" id="resetSettingsBtn">↺ Reset Defaults</button>
                 </div>
             </div>
-            <button id="reset" class="reset-btn">🔄 Reset</button>
+        </details>
+
+        <!-- Game status bar -->
+        <div class="game-bar">
+            <div class="status-card" id="statusCard" aria-live="polite">
+                <span class="status-icon" id="statusIcon">🎮</span>
+                <div>
+                    <div class="status-text" id="statusText">Press New Game</div>
+                    <div class="status-sub" id="statusSub">Configure settings and start</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn" id="newGameBtn">🆕 New Game</button>
+                <button class="btn btn-outline" id="undoBtn" disabled>↩ Undo</button>
+            </div>
         </div>
 
-        <div class="board-container">
-            <div id="board" class="board">
-                <div class="ai-thinking" id="aiThinking">
-                    <div class="spinner"></div>
-                    <p>AI is thinking...</p>
-                </div>
+        <!-- Board -->
+        <div class="board-wrapper" id="boardWrapper">
+            <div class="board" id="board" role="grid" aria-label="Game board"></div>
+            <div class="ai-overlay" id="aiOverlay" style="display:none;">
+                <div class="spinner"></div>
+                <span>AI is thinking…</span>
             </div>
         </div>
     </div>
 
     <script>
-        // DOM elements
-        const mInput = document.getElementById('m');
-        const nInput = document.getElementById('n');
-        const kInput = document.getElementById('k');
-        const timeLimitInput = document.getElementById('timeLimit');
-        const startButton = document.getElementById('start');
-        const statusDiv = document.getElementById('status');
-        const statusHint = document.getElementById('statusHint');
-        const statusIcon = document.getElementById('statusIcon');
-        const statusPanel = document.getElementById('statusPanel');
-        const boardDiv = document.getElementById('board');
-        const aiThinking = document.getElementById('aiThinking');
-        const resetButton = document.getElementById('reset');
-        const settingsToggle = document.getElementById('settingsToggle');
-        const settingsPanel = document.getElementById('settingsPanel');
+        (function() {
+            // ---------- DOM Elements ----------
+            const themeToggle = document.getElementById('themeToggle');
+            const body = document.body;
+            const mInput = document.getElementById('mInput');
+            const nInput = document.getElementById('nInput');
+            const kInput = document.getElementById('kInput');
+            const timeInput = document.getElementById('timeInput');
+            const modeRadios = document.getElementsByName('mode');
+            const starterRadios = document.getElementsByName('starter');
+            const applyBtn = document.getElementById('applySettingsBtn');
+            const resetSettingsBtn = document.getElementById('resetSettingsBtn');
+            const newGameBtn = document.getElementById('newGameBtn');
+            const undoBtn = document.getElementById('undoBtn');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            const statusSub = document.getElementById('statusSub');
+            const boardDiv = document.getElementById('board');
+            const aiOverlay = document.getElementById('aiOverlay');
+            const starterGroup = document.getElementById('starterGroup');
 
-        // Settings toggle
-        settingsToggle.addEventListener('click', () => {
-            settingsPanel.classList.toggle('show');
-        });
+            // ---------- Game State ----------
+            let M, N, K, timeLimitSec, gameMode, startingPlayer;
+            let board, currentPlayer, gameOver, winningLine, lastMoveCell;
+            let moveHistory = [];          // stack of {i, j, player}
+            let worker = null;
+            const WIN_SCORE = 100000;
 
-        // Global game variables
-        let M, N, K;
-        let board;
-        let currentPlayer;
-        let gameOver = false;
-        let startTime;
-        let timeLimitMS;
-        let winningLines;
-        let lineCount;
-        let lastMoveCell = null;
-        const transpositionTable = new Map();
+            // Pre-generated winning lines cache
+            let winningLinesCache = new Map();
 
-        // Start game button event listener
-        startButton.addEventListener('click', () => {
-            M = parseInt(mInput.value);
-            N = parseInt(nInput.value);
-            K = parseInt(kInput.value);
-            timeLimitMS = parseInt(timeLimitInput.value) * 1000;
-            
-            if (isNaN(M) || isNaN(N) || isNaN(K) || M < 3 || N < 3 || K < 3 || K > Math.max(M, N) || M > 15 || N > 15) {
-                statusDiv.textContent = 'Invalid inputs';
-                statusHint.textContent = 'Ensure M, N, K are between 3-15 and K ≤ max(M, N)';
-                return;
-            }
-            
-            settingsPanel.classList.remove('show');
-            startGame();
-        });
-
-        // Reset button
-        resetButton.addEventListener('click', () => {
-            if (!gameOver) {
-                const confirmReset = confirm('Are you sure you want to reset the current game?');
-                if (!confirmReset) return;
-            }
-            startGame();
-        });
-
-        // Generate all possible winning lines
-        function generateWinningLines(M, N, K) {
-            const lines = [];
-            
-            // Rows
-            for (let i = 0; i < M; i++) {
-                for (let j = 0; j <= N - K; j++) {
-                    const line = [];
-                    for (let k = 0; k < K; k++) {
-                        line.push([i, j + k]);
+            function getWinningLines(m, n, k) {
+                const key = `${m},${n},${k}`;
+                if (winningLinesCache.has(key)) return winningLinesCache.get(key);
+                const lines = [];
+                // rows
+                for (let i = 0; i < m; i++)
+                    for (let j = 0; j <= n - k; j++) {
+                        const line = [];
+                        for (let d = 0; d < k; d++) line.push([i, j + d]);
+                        lines.push(line);
                     }
-                    lines.push(line);
-                }
-            }
-            
-            // Columns
-            for (let j = 0; j < N; j++) {
-                for (let i = 0; i <= M - K; i++) {
-                    const line = [];
-                    for (let k = 0; k < K; k++) {
-                        line.push([i + k, j]);
+                // cols
+                for (let j = 0; j < n; j++)
+                    for (let i = 0; i <= m - k; i++) {
+                        const line = [];
+                        for (let d = 0; d < k; d++) line.push([i + d, j]);
+                        lines.push(line);
                     }
-                    lines.push(line);
-                }
-            }
-            
-            // Main diagonals
-            for (let i = 0; i <= M - K; i++) {
-                for (let j = 0; j <= N - K; j++) {
-                    const line = [];
-                    for (let k = 0; k < K; k++) {
-                        line.push([i + k, j + k]);
+                // diag
+                for (let i = 0; i <= m - k; i++)
+                    for (let j = 0; j <= n - k; j++) {
+                        const line = [];
+                        for (let d = 0; d < k; d++) line.push([i + d, j + d]);
+                        lines.push(line);
                     }
-                    lines.push(line);
-                }
-            }
-            
-            // Anti-diagonals
-            for (let i = 0; i <= M - K; i++) {
-                for (let j = K - 1; j < N; j++) {
-                    const line = [];
-                    for (let k = 0; k < K; k++) {
-                        line.push([i + k, j - k]);
+                // anti-diag
+                for (let i = 0; i <= m - k; i++)
+                    for (let j = k - 1; j < n; j++) {
+                        const line = [];
+                        for (let d = 0; d < k; d++) line.push([i + d, j - d]);
+                        lines.push(line);
                     }
-                    lines.push(line);
+                winningLinesCache.set(key, lines);
+                return lines;
+            }
+
+            // ---------- Settings persistence ----------
+            function saveSettings() {
+                const settings = {
+                    m: mInput.value,
+                    n: nInput.value,
+                    k: kInput.value,
+                    time: timeInput.value,
+                    mode: document.querySelector('input[name="mode"]:checked').value,
+                    starter: document.querySelector('input[name="starter"]:checked').value,
+                    darkMode: body.classList.contains('dark-mode')
+                };
+                localStorage.setItem('mnkSettings', JSON.stringify(settings));
+            }
+
+            function loadSettings() {
+                const saved = localStorage.getItem('mnkSettings');
+                if (saved) {
+                    try {
+                        const s = JSON.parse(saved);
+                        mInput.value = s.m || 3;
+                        nInput.value = s.n || 3;
+                        kInput.value = s.k || 3;
+                        timeInput.value = s.time || 4;
+                        document.querySelector(`input[name="mode"][value="${s.mode || 'ai'}"]`).checked = true;
+                        document.querySelector(`input[name="starter"][value="${s.starter || 'user'}"]`).checked = true;
+                        if (s.darkMode) body.classList.add('dark-mode');
+                    } catch(e) {}
                 }
             }
-            
-            return lines;
-        }
 
-        // Immediate win/block detection
-        function findImmediateMove(board, player) {
-            for (const line of winningLines) {
-                let emptyCount = 0;
-                let pieceCount = 0;
-                let emptyPos = null;
-                
-                for (const [i, j] of line) {
-                    if (board[i][j] === player) {
-                        pieceCount++;
-                    } else if (board[i][j] === 0) {
-                        emptyCount++;
-                        emptyPos = [i, j];
+            // ---------- Dark mode ----------
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                saveSettings();
+            });
+
+            // ---------- UI Updates ----------
+            function updateStatus(icon, text, sub) {
+                statusIcon.textContent = icon;
+                statusText.textContent = text;
+                statusSub.textContent = sub;
+            }
+
+            function renderBoard() {
+                boardDiv.style.gridTemplateColumns = `repeat(${N}, var(--cell-size))`;
+                boardDiv.innerHTML = '';
+                for (let i = 0; i < M; i++) {
+                    for (let j = 0; j < N; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.setAttribute('role', 'gridcell');
+                        cell.setAttribute('aria-label', `Row ${i+1}, Column ${j+1}`);
+                        cell.tabIndex = 0;
+                        cell.dataset.row = i;
+                        cell.dataset.col = j;
+                        cell.addEventListener('click', () => handleCellClick(i, j));
+                        cell.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleCellClick(i, j);
+                            }
+                        });
+                        boardDiv.appendChild(cell);
                     }
                 }
-                
-                if (pieceCount === K - 1 && emptyCount === 1) {
-                    return emptyPos;
-                }
             }
-            return null;
-        }
 
-        // Initialize the game
-        function startGame() {
-            board = Array.from({ length: M }, () => Array(N).fill(0));
-            gameOver = false;
-            lastMoveCell = null;
-            transpositionTable.clear();
-            winningLines = generateWinningLines(M, N, K);
-            
-            // Calculate line count for each cell (heuristic)
-            lineCount = Array.from({ length: M }, () => Array(N).fill(0));
-            for (const line of winningLines) {
-                for (const [i, j] of line) {
-                    lineCount[i][j]++;
-                }
+            function updateCell(i, j, player) {
+                const idx = i * N + j;
+                const cell = boardDiv.children[idx];
+                cell.textContent = player === 1 ? 'X' : 'O';
+                cell.classList.add(player === 1 ? 'x' : 'o');
+                if (lastMoveCell) lastMoveCell.classList.remove('last-move');
+                lastMoveCell = cell;
+                cell.classList.add('last-move');
             }
-            
-            renderBoard();
-            setupClickListeners();
-            
-            const starter = document.querySelector('input[name="starter"]:checked').value;
-            if (starter === 'user') {
-                currentPlayer = 1;
-                updateStatus("Your Move", "Place your X on the board", "❌", "turn-x");
-            } else {
-                currentPlayer = 2;
-                updateStatus("AI Thinking", "AI is calculating its move...", "🤖", "turn-o");
-                // Delay AI move to show initial board
-                setTimeout(aiMove, 500);
-            }
-            
-            resetButton.style.display = 'inline-block';
-        }
 
-        // Update status with icon and hint
-        function updateStatus(mainText, hintText, icon, panelClass) {
-            statusDiv.textContent = mainText;
-            statusHint.textContent = hintText;
-            statusIcon.textContent = icon;
-            statusPanel.className = `status-panel ${panelClass}`;
-        }
-
-        // Render the game board
-        function renderBoard() {
-            boardDiv.style.setProperty('--n', N);
-            boardDiv.style.setProperty('--m', M);
-            boardDiv.innerHTML = '';
-            
-            for (let i = 0; i < M; i++) {
-                for (let j = 0; j < N; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.dataset.row = i;
-                    cell.dataset.col = j;
-                    boardDiv.appendChild(cell);
-                }
-            }
-        }
-
-        // Set up click listeners for player moves
-        function setupClickListeners() {
-            const cells = boardDiv.querySelectorAll('.cell');
-            cells.forEach((cell, index) => {
-                cell.addEventListener('click', () => {
-                    const i = Math.floor(index / N);
-                    const j = index % N;
-                    
-                    if (board[i][j] === 0 && currentPlayer === 1 && !gameOver) {
-                        makeMove(i, j, 1);
-                        
-                        // Show visual feedback immediately
-                        const winResult = checkWin(1);
-                        if (winResult) {
-                            endGame("You Win!", "Congratulations! You beat the AI!", "🏆", "winner-x", winResult);
-                        } else if (isBoardFull()) {
-                            endGame("Draw!", "The game ended in a tie.", "🤝", "draw");
-                        } else {
-                            currentPlayer = 2;
-                            updateStatus("AI Thinking", "AI is analyzing the board...", "🤖", "turn-o");
-                            // Use requestAnimationFrame to ensure UI updates before AI starts
-                            requestAnimationFrame(() => {
-                                setTimeout(aiMove, 300); // Give animation time to play
-                            });
-                        }
-                    }
+            function highlightWinningCells(line) {
+                line.forEach(([i, j]) => {
+                    const idx = i * N + j;
+                    boardDiv.children[idx].classList.add('winning');
                 });
-            });
-        }
-
-        // Make a move and update the board
-        function makeMove(i, j, player) {
-            board[i][j] = player;
-            const index = i * N + j;
-            const cell = boardDiv.children[index];
-            const symbol = player === 1 ? 'X' : 'O';
-            
-            // Add visual indicator for the move
-            const indicator = document.createElement('div');
-            indicator.className = `move-indicator ${player === 1 ? 'x' : 'o'}`;
-            cell.appendChild(indicator);
-            
-            cell.textContent = symbol;
-            cell.classList.add(player === 1 ? 'x' : 'o');
-            
-            if (lastMoveCell) {
-                lastMoveCell.classList.remove('last-move');
-                // Remove previous indicator
-                const prevIndicator = lastMoveCell.querySelector('.move-indicator');
-                if (prevIndicator) prevIndicator.remove();
             }
-            lastMoveCell = cell;
-            lastMoveCell.classList.add('last-move');
-        }
 
-        // Enhanced AI move with improved heuristics
-        function aiMove() {
-            if (gameOver) return;
-            
-            aiThinking.classList.add('active');
-            
-            // Run AI calculation in next tick to allow spinner to show
-            setTimeout(() => {
-                // Check for immediate win
-                const winMove = findImmediateMove(board, 2);
-                if (winMove) {
-                    const [i, j] = winMove;
-                    makeMove(i, j, 2);
-                    const winResult = checkWin(2);
-                    aiThinking.classList.remove('active');
-                    endGame("AI Wins!", "The AI has defeated you!", "🤖", "winner-o", winResult);
+            function setAllCellsDisabled(disabled = true) {
+                const cells = boardDiv.querySelectorAll('.cell');
+                cells.forEach(c => {
+                    if (disabled) c.classList.add('disabled');
+                    else c.classList.remove('disabled');
+                });
+            }
+
+            function showAIOverlay(show) {
+                aiOverlay.style.display = show ? 'flex' : 'none';
+                aiOverlay.setAttribute('aria-hidden', !show);
+            }
+
+            // ---------- Game Logic ----------
+            function startNewGame() {
+                // Read settings
+                M = parseInt(mInput.value);
+                N = parseInt(nInput.value);
+                K = parseInt(kInput.value);
+                timeLimitSec = parseFloat(timeInput.value);
+                gameMode = document.querySelector('input[name="mode"]:checked').value;
+                startingPlayer = document.querySelector('input[name="starter"]:checked').value;
+
+                // Validate
+                if (isNaN(M) || isNaN(N) || isNaN(K) || M < 3 || N < 3 || K < 3 || K > Math.max(M, N)) {
+                    alert('Invalid board parameters. Ensure 3 ≤ M,N ≤ 12 and 3 ≤ K ≤ max(M,N).');
                     return;
                 }
-                
-                // Check for immediate block
-                const blockMove = findImmediateMove(board, 1);
-                if (blockMove) {
-                    const [i, j] = blockMove;
-                    makeMove(i, j, 2);
-                    aiThinking.classList.remove('active');
-                    continueGame();
-                    return;
-                }
-                
-                // Iterative deepening with time limit
-                startTime = Date.now();
-                let depth = 1;
-                let bestMove = null;
-                let maxDepthReached = 0;
-                
-                try {
-                    while (Date.now() - startTime < timeLimitMS) {
-                        transpositionTable.clear(); // Clear for each depth to save memory
-                        const result = minimax(board, depth, true, -Infinity, Infinity, true);
-                        
-                        if (result === null || Date.now() - startTime > timeLimitMS) {
-                            break;
-                        }
-                        
-                        if (result.move) {
-                            bestMove = result.move;
-                            maxDepthReached = depth;
-                        }
-                        
-                        // If found a forced win, stop searching
-                        if (result.score >= 1000) {
-                            break;
-                        }
-                        
-                        depth++;
-                    }
-                } catch (e) {
-                    // Time limit exceeded, use best move found
-                    console.log(`Search stopped at depth ${maxDepthReached}`);
-                }
-                
-                aiThinking.classList.remove('active');
-                
-                if (bestMove) {
-                    makeMove(bestMove.i, bestMove.j, 2);
-                    const winResult = checkWin(2);
-                    if (winResult) {
-                        endGame("AI Wins!", "The AI has defeated you!", "🤖", "winner-o", winResult);
-                    } else if (isBoardFull()) {
-                        endGame("Draw!", "The game ended in a tie.", "🤝", "draw");
+
+                // Reset state
+                board = Array.from({ length: M }, () => Array(N).fill(0));
+                gameOver = false;
+                winningLine = null;
+                moveHistory = [];
+                lastMoveCell = null;
+                setAllCellsDisabled(false);
+                renderBoard();
+
+                // Determine starter
+                if (gameMode === 'ai') {
+                    if (startingPlayer === 'user') {
+                        currentPlayer = 1;
+                        updateStatus('❌', 'Your turn (X)', 'Place your piece');
                     } else {
-                        continueGame();
+                        currentPlayer = 2;
+                        updateStatus('🤖', 'AI is thinking…', '');
+                        setAllCellsDisabled(true);
+                        showAIOverlay(true);
+                        setTimeout(() => requestAIMove(), 300);
                     }
+                } else { // PvP
+                    currentPlayer = 1;
+                    updateStatus('❌', 'Player X turn', 'Make your move');
+                }
+
+                undoBtn.disabled = true;
+                saveSettings();
+            }
+
+            function handleCellClick(i, j) {
+                if (gameOver) return;
+                if (board[i][j] !== 0) return;
+
+                if (gameMode === 'ai' && currentPlayer === 2) return; // AI turn
+                if (gameMode === 'pvp') {
+                    makeMove(i, j, currentPlayer);
                 } else {
-                    // Fallback to heuristic move
-                    const heuristicMove = getHeuristicMove();
-                    if (heuristicMove) {
-                        makeMove(heuristicMove.i, heuristicMove.j, 2);
-                        const winResult = checkWin(2);
-                        if (winResult) {
-                            endGame("AI Wins!", "The AI has defeated you!", "🤖", "winner-o", winResult);
-                        } else if (isBoardFull()) {
-                            endGame("Draw!", "The game ended in a tie.", "🤝", "draw");
-                        } else {
-                            continueGame();
-                        }
-                    } else {
-                        endGame("Draw!", "The game ended in a tie.", "🤝", "draw");
-                    }
+                    if (currentPlayer !== 1) return;
+                    makeMove(i, j, 1);
                 }
-            }, 50); // Small delay to ensure spinner shows
-        }
-
-        // Continue game after AI move
-        function continueGame() {
-            currentPlayer = 1;
-            updateStatus("Your Move", "Place your X on the board", "❌", "turn-x");
-        }
-
-        // End game with result
-        function endGame(mainText, hintText, icon, statusClass, winningLine = null) {
-            gameOver = true;
-            updateStatus(mainText, hintText, icon, statusClass);
-            
-            if (winningLine) {
-                highlightWinningLine(winningLine);
             }
-            
-            const cells = boardDiv.querySelectorAll('.cell');
-            cells.forEach(cell => cell.classList.add('disabled'));
-        }
 
-        // Highlight winning line
-        function highlightWinningLine(winningLine) {
-            winningLine.forEach(([i, j]) => {
-                const index = i * N + j;
-                boardDiv.children[index].classList.add('winning');
-            });
-        }
+            function makeMove(i, j, player) {
+                board[i][j] = player;
+                moveHistory.push({ i, j, player });
+                updateCell(i, j, player);
 
-        // Get board key for transposition table
-        function getBoardKey(board) {
-            return board.map(row => row.join('')).join('');
-        }
+                // Check win/draw
+                const line = checkWin(player);
+                if (line) {
+                    gameOver = true;
+                    winningLine = line;
+                    highlightWinningCells(line);
+                    setAllCellsDisabled(true);
+                    if (gameMode === 'ai') {
+                        if (player === 1) updateStatus('🏆', 'You win!', 'Congratulations!');
+                        else updateStatus('🤖', 'AI wins!', 'Better luck next time.');
+                    } else {
+                        updateStatus('🏆', `Player ${player===1?'X':'O'} wins!`, '');
+                    }
+                    undoBtn.disabled = true;
+                    return;
+                }
+                if (isBoardFull()) {
+                    gameOver = true;
+                    updateStatus('🤝', "It's a draw!", '');
+                    setAllCellsDisabled(true);
+                    undoBtn.disabled = true;
+                    return;
+                }
 
-        // Enhanced Minimax with better ordering and heuristics
-        function minimax(board, depth, isMaximizing, alpha, beta, allowNull = false) {
-            if (allowNull && Date.now() - startTime > timeLimitMS) {
+                // Switch turns
+                if (gameMode === 'ai') {
+                    currentPlayer = (player === 1) ? 2 : 1;
+                    if (currentPlayer === 2) {
+                        updateStatus('🤖', 'AI thinking…', '');
+                        setAllCellsDisabled(true);
+                        showAIOverlay(true);
+                        requestAIMove();
+                    } else {
+                        updateStatus('❌', 'Your turn (X)', '');
+                        setAllCellsDisabled(false);
+                    }
+                } else { // PvP
+                    currentPlayer = player === 1 ? 2 : 1;
+                    const symbol = currentPlayer === 1 ? 'X' : 'O';
+                    updateStatus(symbol === 'X' ? '❌' : '⭕', `Player ${symbol} turn`, '');
+                }
+                undoBtn.disabled = (moveHistory.length < 2);
+            }
+
+            function checkWin(player) {
+                const lines = getWinningLines(M, N, K);
+                for (const line of lines) {
+                    if (line.every(([i, j]) => board[i][j] === player)) return line;
+                }
                 return null;
             }
-            
-            const key = getBoardKey(board);
-            
-            // Terminal state check
-            const winResult = checkWin(2);
-            if (winResult) return { score: 1000 + depth, move: null };
-            
-            const playerWin = checkWin(1);
-            if (playerWin) return { score: -1000 - depth, move: null };
-            
-            if (isBoardFull()) return { score: 0, move: null };
-            
-            // Depth limit reached - use heuristic
-            if (depth === 0) {
-                return { score: heuristic(board), move: null };
-            }
-            
-            // Transposition table lookup
-            const stored = transpositionTable.get(key);
-            if (stored && stored.depth >= depth) {
-                return stored;
-            }
-            
-            const moves = getPriorityMoves(board);
-            
-            if (isMaximizing) {
-                let bestScore = -Infinity;
-                let bestMove = null;
-                
-                for (const move of moves) {
-                    board[move.i][move.j] = 2;
-                    const result = minimax(board, depth - 1, false, alpha, beta, allowNull);
-                    board[move.i][move.j] = 0;
-                    
-                    if (result === null && allowNull) return null;
-                    if (result === null) continue;
-                    
-                    if (result.score > bestScore) {
-                        bestScore = result.score;
-                        bestMove = move;
-                    }
-                    
-                    alpha = Math.max(alpha, bestScore);
-                    if (beta <= alpha) break;
-                }
-                
-                const result = { score: bestScore, move: bestMove, depth };
-                transpositionTable.set(key, result);
-                return result;
-            } else {
-                let bestScore = Infinity;
-                let bestMove = null;
-                
-                for (const move of moves) {
-                    board[move.i][move.j] = 1;
-                    const result = minimax(board, depth - 1, true, alpha, beta, allowNull);
-                    board[move.i][move.j] = 0;
-                    
-                    if (result === null && allowNull) return null;
-                    if (result === null) continue;
-                    
-                    if (result.score < bestScore) {
-                        bestScore = result.score;
-                        bestMove = move;
-                    }
-                    
-                    beta = Math.min(beta, bestScore);
-                    if (beta <= alpha) break;
-                }
-                
-                const result = { score: bestScore, move: bestMove, depth };
-                transpositionTable.set(key, result);
-                return result;
-            }
-        }
 
-        // Enhanced heuristic evaluation
-        function heuristic(board) {
-            const scoreAI = computeScore(board, 2);
-            const scorePlayer = computeScore(board, 1);
-            
-            // Center control bonus
-            let centerBonus = 0;
-            const centerI = M / 2 - 0.5;
-            const centerJ = N / 2 - 0.5;
-            
-            for (let i = 0; i < M; i++) {
-                for (let j = 0; j < N; j++) {
-                    if (board[i][j] === 2) {
-                        const distance = Math.sqrt(Math.pow(i - centerI, 2) + Math.pow(j - centerJ, 2));
-                        centerBonus += Math.max(0, 3 - distance) * 2;
-                    } else if (board[i][j] === 1) {
-                        const distance = Math.sqrt(Math.pow(i - centerI, 2) + Math.pow(j - centerJ, 2));
-                        centerBonus -= Math.max(0, 3 - distance) * 1.5;
-                    }
-                }
+            function isBoardFull() {
+                return board.every(row => row.every(cell => cell !== 0));
             }
-            
-            // Mobility bonus
-            const aiMoves = getPossibleMoves(board, 2).length;
-            const playerMoves = getPossibleMoves(board, 1).length;
-            const mobilityBonus = (aiMoves - playerMoves) * 0.5;
-            
-            return scoreAI - scorePlayer + centerBonus + mobilityBonus;
-        }
 
-        // Compute score for a player
-        function computeScore(board, player) {
-            const opponent = 3 - player;
-            let score = 0;
-            
-            for (const line of winningLines) {
-                let P = 0;
-                let O = 0;
-                let empty = 0;
-                
-                for (const [i, j] of line) {
-                    if (board[i][j] === player) P++;
-                    else if (board[i][j] === opponent) O++;
-                    else empty++;
+            // Undo (works for both modes, undoes last two moves if possible)
+            function undoLastMoves() {
+                if (gameOver || moveHistory.length < 2) return;
+                // Undo AI + user move (if AI mode), or two player moves (PvP)
+                const second = moveHistory.pop();
+                const first = moveHistory.pop();
+                board[first.i][first.j] = 0;
+                board[second.i][second.j] = 0;
+
+                // Clear cell visuals
+                const idx1 = first.i * N + first.j;
+                const idx2 = second.i * N + second.j;
+                const cell1 = boardDiv.children[idx1];
+                const cell2 = boardDiv.children[idx2];
+                cell1.textContent = '';
+                cell1.className = 'cell';
+                cell2.textContent = '';
+                cell2.className = 'cell';
+                if (lastMoveCell && (lastMoveCell === cell1 || lastMoveCell === cell2)) {
+                    lastMoveCell = null;
                 }
-                
-                if (O === 0 && P > 0) {
-                    // Unblocked line for player
-                    if (P === K - 1) score += 100; // Winning move
-                    else if (P === K - 2) score += 30; // Strong threat
-                    else if (P === K - 3) score += 10; // Weak threat
-                    else score += P * 2;
-                } else if (P === 0 && O > 0) {
-                    // Blocked by opponent - no points
+                // Restore last move highlight if any moves left
+                if (moveHistory.length > 0) {
+                    const prev = moveHistory[moveHistory.length-1];
+                    const prevIdx = prev.i * N + prev.j;
+                    lastMoveCell = boardDiv.children[prevIdx];
+                    lastMoveCell.classList.add('last-move');
                 }
+
+                // Reset state
+                gameOver = false;
+                winningLine = null;
+                setAllCellsDisabled(false);
+                // Remove any winning highlights
+                boardDiv.querySelectorAll('.winning').forEach(c => c.classList.remove('winning'));
+
+                if (gameMode === 'ai') {
+                    currentPlayer = 1; // back to user
+                    updateStatus('❌', 'Your turn (X)', '');
+                } else {
+                    currentPlayer = first.player; // original player before undo
+                    updateStatus(currentPlayer===1?'❌':'⭕', `Player ${currentPlayer===1?'X':'O'} turn`, '');
+                }
+                undoBtn.disabled = moveHistory.length < 2;
             }
-            
-            return score;
-        }
 
-        // Get moves ordered by priority
-        function getPriorityMoves(board) {
-            const moves = [];
-            
-            for (let i = 0; i < M; i++) {
-                for (let j = 0; j < N; j++) {
-                    if (board[i][j] === 0) {
-                        let priority = lineCount[i][j] * 10;
-                        
-                        // Prefer center
-                        const centerI = M / 2 - 0.5;
-                        const centerJ = N / 2 - 0.5;
-                        const distance = Math.sqrt(Math.pow(i - centerI, 2) + Math.pow(j - centerJ, 2));
-                        priority += Math.max(0, 5 - distance) * 5;
-                        
-                        // Prefer moves near existing pieces
-                        const directions = [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]];
-                        for (const [di, dj] of directions) {
-                            const ni = i + di;
-                            const nj = j + dj;
-                            if (ni >= 0 && ni < M && nj >= 0 && nj < N && board[ni][nj] !== 0) {
-                                priority += 15;
-                            }
+            // ---------- AI Worker ----------
+            function createWorker() {
+                const workerCode = `
+                    const WIN_SCORE = 100000;
+                    let M, N, K, winningLines, board, timeLimitMs, startTime;
+                    let transpositionTable = new Map(); // cleared each search
+
+                    function getWinningLines(m,n,k) {
+                        const lines = [];
+                        for (let i=0;i<m;i++) for (let j=0;j<=n-k;j++) {
+                            const l=[]; for (let d=0;d<k;d++) l.push([i,j+d]); lines.push(l);
                         }
-                        
-                        moves.push({ i, j, priority });
+                        for (let j=0;j<n;j++) for (let i=0;i<=m-k;i++) {
+                            const l=[]; for (let d=0;d<k;d++) l.push([i+d,j]); lines.push(l);
+                        }
+                        for (let i=0;i<=m-k;i++) for (let j=0;j<=n-k;j++) {
+                            const l=[]; for (let d=0;d<k;d++) l.push([i+d,j+d]); lines.push(l);
+                        }
+                        for (let i=0;i<=m-k;i++) for (let j=k-1;j<n;j++) {
+                            const l=[]; for (let d=0;d<k;d++) l.push([i+d,j-d]); lines.push(l);
+                        }
+                        return lines;
                     }
-                }
-            }
-            
-            // Sort by priority (descending)
-            moves.sort((a, b) => b.priority - a.priority);
-            return moves.map(m => ({ i: m.i, j: m.j }));
-        }
 
-        // Get heuristic move (fallback)
-        function getHeuristicMove() {
-            const moves = getPriorityMoves(board);
-            return moves.length > 0 ? moves[0] : null;
-        }
-
-        // Get possible moves for mobility calculation
-        function getPossibleMoves(board, player) {
-            const moves = [];
-            for (let i = 0; i < M; i++) {
-                for (let j = 0; j < N; j++) {
-                    if (board[i][j] === 0) {
-                        moves.push({ i, j });
+                    function checkWin(board, player) {
+                        for (const line of winningLines) {
+                            if (line.every(([i,j]) => board[i][j] === player)) return true;
+                        }
+                        return false;
                     }
-                }
-            }
-            return moves;
-        }
 
-        // Check for win
-        function checkWin(player) {
-            for (const line of winningLines) {
-                if (line.every(([i, j]) => board[i][j] === player)) {
-                    return line; // Return winning line for highlighting
-                }
-            }
-            return null;
-        }
+                    function isBoardFull(board) {
+                        return board.every(row => row.every(c => c !== 0));
+                    }
 
-        // Check if board is full
-        function isBoardFull() {
-            for (let i = 0; i < M; i++) {
-                for (let j = 0; j < N; j++) {
-                    if (board[i][j] === 0) return false;
-                }
-            }
-            return true;
-        }
+                    function heuristic(board) {
+                        let score = 0;
+                        for (const line of winningLines) {
+                            let p1=0, p2=0, empty=0;
+                            for (const [i,j] of line) {
+                                if (board[i][j] === 1) p1++;
+                                else if (board[i][j] === 2) p2++;
+                                else empty++;
+                            }
+                            if (p1>0 && p2===0) score += Math.pow(10, p1);
+                            else if (p2>0 && p1===0) score -= Math.pow(10, p2);
+                        }
+                        // center bonus
+                        for (let i=0;i<M;i++) for (let j=0;j<N;j++) {
+                            if (board[i][j]===2) score -= (Math.abs(i-M/2)+Math.abs(j-N/2))*0.5;
+                            else if (board[i][j]===1) score += (Math.abs(i-M/2)+Math.abs(j-N/2))*0.5;
+                        }
+                        return score;
+                    }
 
-        // Auto-start with 3x3 board on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            // Set default values
-            mInput.value = 3;
-            nInput.value = 3;
-            kInput.value = 3;
-            timeLimitInput.value = 5;
-            document.getElementById('userStart').checked = true;
-            
-            // Trigger game start with defaults
-            setTimeout(() => startButton.click(), 100);
-        });
+                    function getOrderedMoves(board) {
+                        const moves = [];
+                        for (let i=0;i<M;i++) for (let j=0;j<N;j++) {
+                            if (board[i][j]===0) moves.push({i,j});
+                        }
+                        // simple ordering: prefer center and near existing pieces
+                        moves.sort((a,b) => {
+                            const ca = Math.abs(a.i-M/2)+Math.abs(a.j-N/2);
+                            const cb = Math.abs(b.i-M/2)+Math.abs(b.j-N/2);
+                            return ca - cb;
+                        });
+                        return moves;
+                    }
+
+                    function minimax(board, depth, isMax, alpha, beta) {
+                        if (Date.now() - startTime > timeLimitMs) return null;
+                        if (checkWin(board, 2)) return WIN_SCORE + depth;
+                        if (checkWin(board, 1)) return -WIN_SCORE - depth;
+                        if (isBoardFull(board)) return 0;
+                        if (depth === 0) return heuristic(board);
+
+                        const moves = getOrderedMoves(board);
+                        if (isMax) {
+                            let best = -Infinity;
+                            for (const {i,j} of moves) {
+                                board[i][j] = 2;
+                                const val = minimax(board, depth-1, false, alpha, beta);
+                                board[i][j] = 0;
+                                if (val === null) return null;
+                                best = Math.max(best, val);
+                                alpha = Math.max(alpha, best);
+                                if (beta <= alpha) break;
+                            }
+                            return best;
+                        } else {
+                            let best = Infinity;
+                            for (const {i,j} of moves) {
+                                board[i][j] = 1;
+                                const val = minimax(board, depth-1, true, alpha, beta);
+                                board[i][j] = 0;
+                                if (val === null) return null;
+                                best = Math.min(best, val);
+                                beta = Math.min(beta, best);
+                                if (beta <= alpha) break;
+                            }
+                            return best;
+                        }
+                    }
+
+                    function findBestMove(board) {
+                        // immediate win/block
+                        for (const line of winningLines) {
+                            let cnt=0, empty=null;
+                            for (const [i,j] of line) {
+                                if (board[i][j]===2) cnt++;
+                                else if (board[i][j]===0) empty=[i,j];
+                            }
+                            if (cnt===K-1 && empty) return empty;
+                        }
+                        for (const line of winningLines) {
+                            let cnt=0, empty=null;
+                            for (const [i,j] of line) {
+                                if (board[i][j]===1) cnt++;
+                                else if (board[i][j]===0) empty=[i,j];
+                            }
+                            if (cnt===K-1 && empty) return empty;
+                        }
+
+                        // iterative deepening
+                        let bestMove = null;
+                        let depth = 1;
+                        startTime = Date.now();
+                        while (Date.now() - startTime < timeLimitMs) {
+                            const moves = getOrderedMoves(board);
+                            let bestScore = -Infinity;
+                            let currentBest = null;
+                            for (const {i,j} of moves) {
+                                board[i][j] = 2;
+                                const score = minimax(board, depth-1, false, -Infinity, Infinity);
+                                board[i][j] = 0;
+                                if (score === null) break;
+                                if (score > bestScore) {
+                                    bestScore = score;
+                                    currentBest = {i,j};
+                                }
+                                if (Date.now() - startTime > timeLimitMs) break;
+                            }
+                            if (currentBest) bestMove = currentBest;
+                            if (bestScore >= WIN_SCORE) break;
+                            depth++;
+                            if (Date.now() - startTime > timeLimitMs) break;
+                        }
+                        if (!bestMove) {
+                            // fallback random
+                            const empty = [];
+                            for (let i=0;i<M;i++) for (let j=0;j<N;j++) if (board[i][j]===0) empty.push({i,j});
+                            bestMove = empty[Math.floor(Math.random()*empty.length)];
+                        }
+                        return bestMove;
+                    }
+
+                    onmessage = function(e) {
+                        const { board: b, M: m, N: n, K: k, timeLimitMs: t } = e.data;
+                        M=m; N=n; K=k;
+                        board = b.map(row => [...row]);
+                        timeLimitMs = t;
+                        winningLines = getWinningLines(M,N,K);
+                        const move = findBestMove(board);
+                        postMessage({ move });
+                    };
+                `;
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                return new Worker(URL.createObjectURL(blob));
+            }
+
+            function requestAIMove() {
+                if (worker) worker.terminate();
+                worker = createWorker();
+                const timeMs = timeLimitSec * 1000;
+                worker.postMessage({ board, M, N, K, timeLimitMs: timeMs });
+
+                worker.onmessage = (e) => {
+                    const { move } = e.data;
+                    worker.terminate();
+                    worker = null;
+                    showAIOverlay(false);
+                    if (move && !gameOver) {
+                        makeMove(move.i, move.j, 2);
+                    } else if (!gameOver) {
+                        // fallback: pick random empty
+                        const empty = [];
+                        for (let i=0;i<M;i++) for (let j=0;j<N;j++) if (board[i][j]===0) empty.push({i,j});
+                        if (empty.length) makeMove(empty[0].i, empty[0].j, 2);
+                    }
+                };
+                worker.onerror = () => {
+                    showAIOverlay(false);
+                    updateStatus('⚠️', 'AI error', 'Try again');
+                };
+            }
+
+            // ---------- Event Listeners ----------
+            applyBtn.addEventListener('click', startNewGame);
+            newGameBtn.addEventListener('click', startNewGame);
+            undoBtn.addEventListener('click', undoLastMoves);
+            resetSettingsBtn.addEventListener('click', () => {
+                mInput.value = 3;
+                nInput.value = 3;
+                kInput.value = 3;
+                timeInput.value = 4;
+                document.querySelector('input[name="mode"][value="ai"]').checked = true;
+                document.querySelector('input[name="starter"][value="user"]').checked = true;
+                body.classList.remove('dark-mode');
+                localStorage.removeItem('mnkSettings');
+                startNewGame();
+            });
+
+            // Show/hide starter group based on mode
+            function updateStarterVisibility() {
+                const mode = document.querySelector('input[name="mode"]:checked').value;
+                starterGroup.style.display = mode === 'ai' ? 'flex' : 'none';
+            }
+            modeRadios.forEach(r => r.addEventListener('change', updateStarterVisibility));
+
+            // Auto-save on any input change
+            [mInput,nInput,kInput,timeInput].forEach(el => el.addEventListener('change', saveSettings));
+            modeRadios.forEach(r => r.addEventListener('change', saveSettings));
+            starterRadios.forEach(r => r.addEventListener('change', saveSettings));
+
+            // ---------- Initialize ----------
+            loadSettings();
+            updateStarterVisibility();
+            startNewGame(); // auto-start with loaded/default settings
+
+            // Cleanup worker on page unload
+            window.addEventListener('beforeunload', () => {
+                if (worker) worker.terminate();
+            });
+        })();
     </script>
 </body>
 </html>
