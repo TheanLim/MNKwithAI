@@ -474,6 +474,7 @@
             let board, currentPlayer, gameOver, winningLine, lastMoveCell;
             let moveHistory = [];
             let worker = null;
+            let aiRequestId = 0;        // incremented each AI call, used to ignore stale responses
 
             // Cache for winning lines
             const winningLinesCache = new Map();
@@ -567,6 +568,7 @@
             const updateCell = (i, j, player) => {
                 const idx = i * N + j;
                 const cell = boardDiv.children[idx];
+                if (!cell) return; // safety
                 cell.textContent = player === 1 ? 'X' : 'O';
                 cell.classList.add(player === 1 ? 'x' : 'o');
                 if (lastMoveCell) lastMoveCell.classList.remove('last-move');
@@ -575,7 +577,10 @@
             };
 
             const highlightWinningCells = (line) => {
-                line.forEach(([i, j]) => boardDiv.children[i * N + j].classList.add('winning'));
+                line.forEach(([i, j]) => {
+                    const cell = boardDiv.children[i * N + j];
+                    if (cell) cell.classList.add('winning');
+                });
             };
 
             const setAllCellsDisabled = (disabled = true) => {
@@ -592,7 +597,8 @@
 
             // ---------- Core game logic ----------
             const startNewGame = () => {
-                // Kill any old AI process
+                // Cancel any ongoing AI request
+                aiRequestId++;                     // invalidate any pending worker response
                 if (worker) {
                     worker.terminate();
                     worker = null;
@@ -640,11 +646,14 @@
 
             const handleCellClick = (i, j) => {
                 if (gameOver || board[i][j] !== 0) return;
-                if (gameMode === 'ai' && currentPlayer !== 1) return; // AI turn
+                if (gameMode === 'ai' && currentPlayer !== 1) return;
                 makeMove(i, j, currentPlayer);
             };
 
             const makeMove = (i, j, player) => {
+                if (i < 0 || i >= M || j < 0 || j >= N) return;   // out of bounds
+                if (board[i][j] !== 0) return;                     // already occupied
+
                 board[i][j] = player;
                 moveHistory.push({ i, j, player });
                 updateCell(i, j, player);
@@ -708,8 +717,10 @@
                 const clearCell = (i, j) => {
                     const idx = i * N + j;
                     const cell = boardDiv.children[idx];
-                    cell.textContent = '';
-                    cell.className = 'cell';
+                    if (cell) {
+                        cell.textContent = '';
+                        cell.className = 'cell';
+                    }
                 };
                 clearCell(first.i, first.j);
                 clearCell(second.i, second.j);
@@ -719,7 +730,7 @@
                     if (moveHistory.length > 0) {
                         const prev = moveHistory[moveHistory.length - 1];
                         lastMoveCell = boardDiv.children[prev.i * N + prev.j];
-                        lastMoveCell.classList.add('last-move');
+                        if (lastMoveCell) lastMoveCell.classList.add('last-move');
                     }
                 }
 
@@ -849,7 +860,7 @@
                         if(!bestMove){
                             const empty=[];
                             for(let i=0;i<M;i++) for(let j=0;j<N;j++) if(b[i][j]===0)empty.push({i,j});
-                            bestMove=empty[Math.floor(Math.random()*empty.length)] || {i:0,j:0}; // fallback
+                            bestMove=empty[Math.floor(Math.random()*empty.length)] || {i:0,j:0};
                         }
                         return bestMove;
                     }
@@ -868,17 +879,25 @@
             };
 
             const requestAIMove = () => {
+                // Clean up any existing worker
                 if (worker) worker.terminate();
+                const id = ++aiRequestId;          // capture current id for this request
                 worker = createWorker();
                 worker.postMessage({ board, M, N, K, timeLimitMs: timeLimitSec * 1000 });
 
                 worker.onmessage = (e) => {
+                    // Ignore if this response is from an outdated request (game was restarted/undone)
+                    if (id !== aiRequestId) {
+                        worker.terminate();
+                        worker = null;
+                        return;
+                    }
                     const { move } = e.data;
                     worker.terminate();
                     worker = null;
                     showAIOverlay(false);
 
-                    if (gameOver) return;   // game already finished
+                    if (gameOver) return;
                     if (!move || move.i == null || move.j == null) return;
                     if (move.i < 0 || move.i >= M || move.j < 0 || move.j >= N) return;
                     if (board[move.i][move.j] !== 0) return;
@@ -889,6 +908,7 @@
                 worker.onerror = () => {
                     showAIOverlay(false);
                     updateStatus('⚠️', 'AI error', 'Try again');
+                    if (worker) { worker.terminate(); worker = null; }
                 };
             };
 
