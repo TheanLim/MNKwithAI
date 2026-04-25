@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MNK Pro - Ultimate Strategy Game</title>
+    <title>MNK Pro – Ultimate Strategy Game</title>
     <style>
         :root {
-            /* Light mode colors */
             --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --surface-bg: rgba(255, 255, 255, 0.92);
             --surface-border: rgba(255, 255, 255, 0.25);
@@ -43,11 +42,7 @@
             --border-color: rgba(255, 255, 255, 0.1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: var(--font-family);
@@ -71,7 +66,6 @@
             gap: 24px;
         }
 
-        /* Header */
         .header {
             text-align: center;
             color: white;
@@ -89,26 +83,16 @@
             font-weight: 500;
         }
 
-        /* Panels */
-        .panel {
+        .panel, details.settings {
             background: var(--surface-bg);
             backdrop-filter: var(--glass-blur);
             border: 1px solid var(--surface-border);
             border-radius: var(--border-radius);
-            padding: 20px 24px;
             box-shadow: var(--shadow);
             transition: background 0.3s, border 0.3s;
         }
-
-        /* Settings using details/summary */
         details.settings {
-            background: var(--surface-bg);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--surface-border);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
             overflow: hidden;
-            transition: all 0.3s;
         }
         details.settings[open] {
             box-shadow: 0 12px 40px rgba(0,0,0,0.2);
@@ -122,7 +106,6 @@
             align-items: center;
             gap: 8px;
             color: var(--text-primary);
-            background: transparent;
             border-bottom: 1px solid transparent;
             transition: background 0.2s;
         }
@@ -130,9 +113,8 @@
             border-bottom: 1px solid var(--border-color);
             background: var(--accent-light);
         }
-        summary:hover {
-            background: var(--accent-light);
-        }
+        summary:hover { background: var(--accent-light); }
+
         .settings-content {
             padding: 24px;
             display: flex;
@@ -196,19 +178,14 @@
             background: rgba(0,0,0,0.02);
             font-size: 0.9rem;
         }
-        body.dark-mode .radio-option {
-            background: rgba(255,255,255,0.05);
-        }
-        .radio-option:hover, .check-option:hover {
-            background: var(--accent-light);
-        }
+        body.dark-mode .radio-option { background: rgba(255,255,255,0.05); }
+        .radio-option:hover, .check-option:hover { background: var(--accent-light); }
         input[type="radio"], input[type="checkbox"] {
             accent-color: var(--accent);
             width: 16px;
             height: 16px;
         }
 
-        /* Game info bar */
         .game-bar {
             display: flex;
             align-items: center;
@@ -229,18 +206,9 @@
             box-shadow: var(--shadow);
             transition: background 0.3s, border 0.3s;
         }
-        .status-icon {
-            font-size: 2rem;
-        }
-        .status-text {
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-        .status-sub {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
+        .status-icon { font-size: 2rem; }
+        .status-text { font-weight: 700; font-size: 1.2rem; }
+        .status-sub { font-size: 0.8rem; color: var(--text-secondary); font-weight: 500; }
 
         .btn {
             background: var(--accent);
@@ -264,9 +232,7 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
-        .btn:active {
-            transform: translateY(0);
-        }
+        .btn:active { transform: translateY(0); }
         .btn:disabled {
             opacity: 0.5;
             pointer-events: none;
@@ -280,11 +246,8 @@
             color: var(--accent);
             box-shadow: none;
         }
-        .btn-outline:hover {
-            background: var(--accent-light);
-        }
+        .btn-outline:hover { background: var(--accent-light); }
 
-        /* Board */
         .board-wrapper {
             position: relative;
             display: flex;
@@ -330,15 +293,9 @@
             box-shadow: 0 8px 18px rgba(0,0,0,0.1);
             z-index: 2;
         }
-        .cell.x {
-            color: var(--danger);
-        }
-        .cell.o {
-            color: var(--accent);
-        }
-        .cell.last-move {
-            box-shadow: 0 0 0 3px var(--warning);
-        }
+        .cell.x { color: var(--danger); }
+        .cell.o { color: var(--accent); }
+        .cell.last-move { box-shadow: 0 0 0 3px var(--warning); }
         .cell.winning {
             background: rgba(16, 185, 129, 0.2);
             animation: pulseWin 1.2s infinite;
@@ -357,11 +314,8 @@
             60% { transform: scale(1.2); }
             100% { transform: scale(1); opacity: 1; }
         }
-        .cell.x, .cell.o {
-            animation: popIn 0.35s ease-out;
-        }
+        .cell.x, .cell.o { animation: popIn 0.35s ease-out; }
 
-        /* AI thinking overlay */
         .ai-overlay {
             position: absolute;
             inset: 0;
@@ -387,11 +341,8 @@
             border-radius: 50%;
             animation: spin 0.9s linear infinite;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Dark mode toggle */
         .theme-toggle {
             position: fixed;
             top: 20px;
@@ -412,24 +363,13 @@
             z-index: 20;
             color: var(--text-primary);
         }
-        .theme-toggle:hover {
-            transform: scale(1.1);
-        }
+        .theme-toggle:hover { transform: scale(1.1); }
 
         @media (max-width: 640px) {
-            :root {
-                --cell-size: 55px;
-            }
-            .settings-grid {
-                grid-template-columns: 1fr;
-            }
-            .header h1 {
-                font-size: 2.2rem;
-            }
-            .btn {
-                padding: 10px 18px;
-                font-size: 0.9rem;
-            }
+            :root { --cell-size: 55px; }
+            .settings-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2.2rem; }
+            .btn { padding: 10px 18px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -439,10 +379,9 @@
     <div class="container">
         <header class="header">
             <h1>MNK Pro</h1>
-            <p>Customizable board • Smart AI • Multiplayer</p>
+            <p>Customizable board • Smart AI • Two‑player mode</p>
         </header>
 
-        <!-- Settings panel -->
         <details class="settings" id="settingsPanel">
             <summary>⚙️ Game Settings</summary>
             <div class="settings-content">
@@ -485,7 +424,6 @@
             </div>
         </details>
 
-        <!-- Game status bar -->
         <div class="game-bar">
             <div class="status-card" id="statusCard" aria-live="polite">
                 <span class="status-icon" id="statusIcon">🎮</span>
@@ -500,7 +438,6 @@
             </div>
         </div>
 
-        <!-- Board -->
         <div class="board-wrapper" id="boardWrapper">
             <div class="board" id="board" role="grid" aria-label="Game board"></div>
             <div class="ai-overlay" id="aiOverlay" style="display:none;">
@@ -512,7 +449,7 @@
 
     <script>
         (function() {
-            // ---------- DOM Elements ----------
+            // ---------- DOM ----------
             const themeToggle = document.getElementById('themeToggle');
             const body = document.body;
             const mInput = document.getElementById('mInput');
@@ -535,64 +472,46 @@
             // ---------- Game State ----------
             let M, N, K, timeLimitSec, gameMode, startingPlayer;
             let board, currentPlayer, gameOver, winningLine, lastMoveCell;
-            let moveHistory = [];          // stack of {i, j, player}
+            let moveHistory = [];
             let worker = null;
-            const WIN_SCORE = 100000;
 
-            // Pre-generated winning lines cache
-            let winningLinesCache = new Map();
-
-            function getWinningLines(m, n, k) {
+            // Cache for winning lines
+            const winningLinesCache = new Map();
+            const getWinningLines = (m, n, k) => {
                 const key = `${m},${n},${k}`;
                 if (winningLinesCache.has(key)) return winningLinesCache.get(key);
                 const lines = [];
-                // rows
                 for (let i = 0; i < m; i++)
                     for (let j = 0; j <= n - k; j++) {
-                        const line = [];
-                        for (let d = 0; d < k; d++) line.push([i, j + d]);
-                        lines.push(line);
+                        const l = []; for (let d = 0; d < k; d++) l.push([i, j + d]); lines.push(l);
                     }
-                // cols
                 for (let j = 0; j < n; j++)
                     for (let i = 0; i <= m - k; i++) {
-                        const line = [];
-                        for (let d = 0; d < k; d++) line.push([i + d, j]);
-                        lines.push(line);
+                        const l = []; for (let d = 0; d < k; d++) l.push([i + d, j]); lines.push(l);
                     }
-                // diag
                 for (let i = 0; i <= m - k; i++)
                     for (let j = 0; j <= n - k; j++) {
-                        const line = [];
-                        for (let d = 0; d < k; d++) line.push([i + d, j + d]);
-                        lines.push(line);
+                        const l = []; for (let d = 0; d < k; d++) l.push([i + d, j + d]); lines.push(l);
                     }
-                // anti-diag
                 for (let i = 0; i <= m - k; i++)
                     for (let j = k - 1; j < n; j++) {
-                        const line = [];
-                        for (let d = 0; d < k; d++) line.push([i + d, j - d]);
-                        lines.push(line);
+                        const l = []; for (let d = 0; d < k; d++) l.push([i + d, j - d]); lines.push(l);
                     }
                 winningLinesCache.set(key, lines);
                 return lines;
-            }
+            };
 
             // ---------- Settings persistence ----------
-            function saveSettings() {
-                const settings = {
-                    m: mInput.value,
-                    n: nInput.value,
-                    k: kInput.value,
-                    time: timeInput.value,
+            const saveSettings = () => {
+                const s = {
+                    m: mInput.value, n: nInput.value, k: kInput.value, time: timeInput.value,
                     mode: document.querySelector('input[name="mode"]:checked').value,
                     starter: document.querySelector('input[name="starter"]:checked').value,
                     darkMode: body.classList.contains('dark-mode')
                 };
-                localStorage.setItem('mnkSettings', JSON.stringify(settings));
-            }
-
-            function loadSettings() {
+                localStorage.setItem('mnkSettings', JSON.stringify(s));
+            };
+            const loadSettings = () => {
                 const saved = localStorage.getItem('mnkSettings');
                 if (saved) {
                     try {
@@ -606,22 +525,22 @@
                         if (s.darkMode) body.classList.add('dark-mode');
                     } catch(e) {}
                 }
-            }
+            };
 
-            // ---------- Dark mode ----------
+            // Dark mode
             themeToggle.addEventListener('click', () => {
                 body.classList.toggle('dark-mode');
                 saveSettings();
             });
 
-            // ---------- UI Updates ----------
-            function updateStatus(icon, text, sub) {
+            // ---------- UI helpers ----------
+            const updateStatus = (icon, text, sub) => {
                 statusIcon.textContent = icon;
                 statusText.textContent = text;
                 statusSub.textContent = sub;
-            }
+            };
 
-            function renderBoard() {
+            const renderBoard = () => {
                 boardDiv.style.gridTemplateColumns = `repeat(${N}, var(--cell-size))`;
                 boardDiv.innerHTML = '';
                 for (let i = 0; i < M; i++) {
@@ -643,9 +562,9 @@
                         boardDiv.appendChild(cell);
                     }
                 }
-            }
+            };
 
-            function updateCell(i, j, player) {
+            const updateCell = (i, j, player) => {
                 const idx = i * N + j;
                 const cell = boardDiv.children[idx];
                 cell.textContent = player === 1 ? 'X' : 'O';
@@ -653,31 +572,32 @@
                 if (lastMoveCell) lastMoveCell.classList.remove('last-move');
                 lastMoveCell = cell;
                 cell.classList.add('last-move');
-            }
+            };
 
-            function highlightWinningCells(line) {
-                line.forEach(([i, j]) => {
-                    const idx = i * N + j;
-                    boardDiv.children[idx].classList.add('winning');
-                });
-            }
+            const highlightWinningCells = (line) => {
+                line.forEach(([i, j]) => boardDiv.children[i * N + j].classList.add('winning'));
+            };
 
-            function setAllCellsDisabled(disabled = true) {
-                const cells = boardDiv.querySelectorAll('.cell');
-                cells.forEach(c => {
+            const setAllCellsDisabled = (disabled = true) => {
+                boardDiv.querySelectorAll('.cell').forEach(c => {
                     if (disabled) c.classList.add('disabled');
                     else c.classList.remove('disabled');
                 });
-            }
+            };
 
-            function showAIOverlay(show) {
+            const showAIOverlay = (show) => {
                 aiOverlay.style.display = show ? 'flex' : 'none';
                 aiOverlay.setAttribute('aria-hidden', !show);
-            }
+            };
 
-            // ---------- Game Logic ----------
-            function startNewGame() {
-                // Read settings
+            // ---------- Core game logic ----------
+            const startNewGame = () => {
+                // Kill any old AI process
+                if (worker) {
+                    worker.terminate();
+                    worker = null;
+                }
+
                 M = parseInt(mInput.value);
                 N = parseInt(nInput.value);
                 K = parseInt(kInput.value);
@@ -685,13 +605,11 @@
                 gameMode = document.querySelector('input[name="mode"]:checked').value;
                 startingPlayer = document.querySelector('input[name="starter"]:checked').value;
 
-                // Validate
                 if (isNaN(M) || isNaN(N) || isNaN(K) || M < 3 || N < 3 || K < 3 || K > Math.max(M, N)) {
-                    alert('Invalid board parameters. Ensure 3 ≤ M,N ≤ 12 and 3 ≤ K ≤ max(M,N).');
+                    alert('Invalid board parameters. 3 ≤ M,N ≤ 12 and 3 ≤ K ≤ max(M,N).');
                     return;
                 }
 
-                // Reset state
                 board = Array.from({ length: M }, () => Array(N).fill(0));
                 gameOver = false;
                 winningLine = null;
@@ -699,8 +617,9 @@
                 lastMoveCell = null;
                 setAllCellsDisabled(false);
                 renderBoard();
+                undoBtn.disabled = true;
+                showAIOverlay(false);
 
-                // Determine starter
                 if (gameMode === 'ai') {
                     if (startingPlayer === 'user') {
                         currentPlayer = 1;
@@ -712,47 +631,36 @@
                         showAIOverlay(true);
                         setTimeout(() => requestAIMove(), 300);
                     }
-                } else { // PvP
+                } else {
                     currentPlayer = 1;
                     updateStatus('❌', 'Player X turn', 'Make your move');
                 }
-
-                undoBtn.disabled = true;
                 saveSettings();
-            }
+            };
 
-            function handleCellClick(i, j) {
-                if (gameOver) return;
-                if (board[i][j] !== 0) return;
+            const handleCellClick = (i, j) => {
+                if (gameOver || board[i][j] !== 0) return;
+                if (gameMode === 'ai' && currentPlayer !== 1) return; // AI turn
+                makeMove(i, j, currentPlayer);
+            };
 
-                if (gameMode === 'ai' && currentPlayer === 2) return; // AI turn
-                if (gameMode === 'pvp') {
-                    makeMove(i, j, currentPlayer);
-                } else {
-                    if (currentPlayer !== 1) return;
-                    makeMove(i, j, 1);
-                }
-            }
-
-            function makeMove(i, j, player) {
+            const makeMove = (i, j, player) => {
                 board[i][j] = player;
                 moveHistory.push({ i, j, player });
                 updateCell(i, j, player);
 
-                // Check win/draw
                 const line = checkWin(player);
                 if (line) {
                     gameOver = true;
                     winningLine = line;
                     highlightWinningCells(line);
                     setAllCellsDisabled(true);
+                    undoBtn.disabled = true;
                     if (gameMode === 'ai') {
-                        if (player === 1) updateStatus('🏆', 'You win!', 'Congratulations!');
-                        else updateStatus('🤖', 'AI wins!', 'Better luck next time.');
+                        updateStatus(player === 1 ? '🏆' : '🤖', player === 1 ? 'You win!' : 'AI wins!', '');
                     } else {
                         updateStatus('🏆', `Player ${player===1?'X':'O'} wins!`, '');
                     }
-                    undoBtn.disabled = true;
                     return;
                 }
                 if (isBoardFull()) {
@@ -763,9 +671,9 @@
                     return;
                 }
 
-                // Switch turns
+                // Next turn
                 if (gameMode === 'ai') {
-                    currentPlayer = (player === 1) ? 2 : 1;
+                    currentPlayer = player === 1 ? 2 : 1;
                     if (currentPlayer === 2) {
                         updateStatus('🤖', 'AI thinking…', '');
                         setAllCellsDisabled(true);
@@ -775,277 +683,221 @@
                         updateStatus('❌', 'Your turn (X)', '');
                         setAllCellsDisabled(false);
                     }
-                } else { // PvP
+                } else {
                     currentPlayer = player === 1 ? 2 : 1;
-                    const symbol = currentPlayer === 1 ? 'X' : 'O';
-                    updateStatus(symbol === 'X' ? '❌' : '⭕', `Player ${symbol} turn`, '');
+                    updateStatus(currentPlayer === 1 ? '❌' : '⭕', `Player ${currentPlayer===1?'X':'O'} turn`, '');
                 }
-                undoBtn.disabled = (moveHistory.length < 2);
-            }
+                undoBtn.disabled = moveHistory.length < 2;
+            };
 
-            function checkWin(player) {
+            const checkWin = (player) => {
                 const lines = getWinningLines(M, N, K);
-                for (const line of lines) {
-                    if (line.every(([i, j]) => board[i][j] === player)) return line;
-                }
-                return null;
-            }
+                return lines.find(line => line.every(([i, j]) => board[i][j] === player)) || null;
+            };
 
-            function isBoardFull() {
-                return board.every(row => row.every(cell => cell !== 0));
-            }
+            const isBoardFull = () => board.every(row => row.every(cell => cell !== 0));
 
-            // Undo (works for both modes, undoes last two moves if possible)
-            function undoLastMoves() {
+            // Undo (last TWO moves in any mode)
+            const undoLastMoves = () => {
                 if (gameOver || moveHistory.length < 2) return;
-                // Undo AI + user move (if AI mode), or two player moves (PvP)
                 const second = moveHistory.pop();
                 const first = moveHistory.pop();
                 board[first.i][first.j] = 0;
                 board[second.i][second.j] = 0;
 
-                // Clear cell visuals
-                const idx1 = first.i * N + first.j;
-                const idx2 = second.i * N + second.j;
-                const cell1 = boardDiv.children[idx1];
-                const cell2 = boardDiv.children[idx2];
-                cell1.textContent = '';
-                cell1.className = 'cell';
-                cell2.textContent = '';
-                cell2.className = 'cell';
-                if (lastMoveCell && (lastMoveCell === cell1 || lastMoveCell === cell2)) {
+                const clearCell = (i, j) => {
+                    const idx = i * N + j;
+                    const cell = boardDiv.children[idx];
+                    cell.textContent = '';
+                    cell.className = 'cell';
+                };
+                clearCell(first.i, first.j);
+                clearCell(second.i, second.j);
+
+                if (lastMoveCell) {
                     lastMoveCell = null;
-                }
-                // Restore last move highlight if any moves left
-                if (moveHistory.length > 0) {
-                    const prev = moveHistory[moveHistory.length-1];
-                    const prevIdx = prev.i * N + prev.j;
-                    lastMoveCell = boardDiv.children[prevIdx];
-                    lastMoveCell.classList.add('last-move');
+                    if (moveHistory.length > 0) {
+                        const prev = moveHistory[moveHistory.length - 1];
+                        lastMoveCell = boardDiv.children[prev.i * N + prev.j];
+                        lastMoveCell.classList.add('last-move');
+                    }
                 }
 
-                // Reset state
                 gameOver = false;
                 winningLine = null;
                 setAllCellsDisabled(false);
-                // Remove any winning highlights
                 boardDiv.querySelectorAll('.winning').forEach(c => c.classList.remove('winning'));
 
                 if (gameMode === 'ai') {
-                    currentPlayer = 1; // back to user
+                    currentPlayer = 1;
                     updateStatus('❌', 'Your turn (X)', '');
                 } else {
-                    currentPlayer = first.player; // original player before undo
+                    currentPlayer = first.player;
                     updateStatus(currentPlayer===1?'❌':'⭕', `Player ${currentPlayer===1?'X':'O'} turn`, '');
                 }
                 undoBtn.disabled = moveHistory.length < 2;
-            }
+            };
 
-            // ---------- AI Worker ----------
-            function createWorker() {
-                const workerCode = `
+            // ---------- AI (Web Worker) ----------
+            const createWorker = () => {
+                const code = `
                     const WIN_SCORE = 100000;
-                    let M, N, K, winningLines, board, timeLimitMs, startTime;
-                    let transpositionTable = new Map(); // cleared each search
+                    let M,N,K,winningLines,board,timeLimitMs,startTime;
 
-                    function getWinningLines(m,n,k) {
-                        const lines = [];
-                        for (let i=0;i<m;i++) for (let j=0;j<=n-k;j++) {
-                            const l=[]; for (let d=0;d<k;d++) l.push([i,j+d]); lines.push(l);
-                        }
-                        for (let j=0;j<n;j++) for (let i=0;i<=m-k;i++) {
-                            const l=[]; for (let d=0;d<k;d++) l.push([i+d,j]); lines.push(l);
-                        }
-                        for (let i=0;i<=m-k;i++) for (let j=0;j<=n-k;j++) {
-                            const l=[]; for (let d=0;d<k;d++) l.push([i+d,j+d]); lines.push(l);
-                        }
-                        for (let i=0;i<=m-k;i++) for (let j=k-1;j<n;j++) {
-                            const l=[]; for (let d=0;d<k;d++) l.push([i+d,j-d]); lines.push(l);
-                        }
+                    function getLines(m,n,k){
+                        const lines=[];
+                        for(let i=0;i<m;i++) for(let j=0;j<=n-k;j++){const l=[];for(let d=0;d<k;d++)l.push([i,j+d]);lines.push(l);}
+                        for(let j=0;j<n;j++) for(let i=0;i<=m-k;i++){const l=[];for(let d=0;d<k;d++)l.push([i+d,j]);lines.push(l);}
+                        for(let i=0;i<=m-k;i++) for(let j=0;j<=n-k;j++){const l=[];for(let d=0;d<k;d++)l.push([i+d,j+d]);lines.push(l);}
+                        for(let i=0;i<=m-k;i++) for(let j=k-1;j<n;j++){const l=[];for(let d=0;d<k;d++)l.push([i+d,j-d]);lines.push(l);}
                         return lines;
                     }
-
-                    function checkWin(board, player) {
-                        for (const line of winningLines) {
-                            if (line.every(([i,j]) => board[i][j] === player)) return true;
-                        }
-                        return false;
-                    }
-
-                    function isBoardFull(board) {
-                        return board.every(row => row.every(c => c !== 0));
-                    }
-
-                    function heuristic(board) {
-                        let score = 0;
-                        for (const line of winningLines) {
-                            let p1=0, p2=0, empty=0;
-                            for (const [i,j] of line) {
-                                if (board[i][j] === 1) p1++;
-                                else if (board[i][j] === 2) p2++;
-                                else empty++;
+                    function checkWin(b,p){return winningLines.some(l=>l.every(([i,j])=>b[i][j]===p));}
+                    function isFull(b){return b.every(r=>r.every(c=>c!==0));}
+                    function heuristic(b){
+                        let s=0;
+                        for(const l of winningLines){
+                            let p1=0,p2=0;
+                            for(const [i,j] of l){
+                                if(b[i][j]===1)p1++; else if(b[i][j]===2)p2++;
                             }
-                            if (p1>0 && p2===0) score += Math.pow(10, p1);
-                            else if (p2>0 && p1===0) score -= Math.pow(10, p2);
+                            if(p1>0&&p2===0)s+=Math.pow(10,p1); else if(p2>0&&p1===0)s-=Math.pow(10,p2);
                         }
-                        // center bonus
-                        for (let i=0;i<M;i++) for (let j=0;j<N;j++) {
-                            if (board[i][j]===2) score -= (Math.abs(i-M/2)+Math.abs(j-N/2))*0.5;
-                            else if (board[i][j]===1) score += (Math.abs(i-M/2)+Math.abs(j-N/2))*0.5;
+                        for(let i=0;i<M;i++) for(let j=0;j<N;j++){
+                            if(b[i][j]===2)s-=(Math.abs(i-M/2)+Math.abs(j-N/2))*0.5;
+                            else if(b[i][j]===1)s+=(Math.abs(i-M/2)+Math.abs(j-N/2))*0.5;
                         }
-                        return score;
+                        return s;
                     }
-
-                    function getOrderedMoves(board) {
-                        const moves = [];
-                        for (let i=0;i<M;i++) for (let j=0;j<N;j++) {
-                            if (board[i][j]===0) moves.push({i,j});
-                        }
-                        // simple ordering: prefer center and near existing pieces
-                        moves.sort((a,b) => {
-                            const ca = Math.abs(a.i-M/2)+Math.abs(a.j-N/2);
-                            const cb = Math.abs(b.i-M/2)+Math.abs(b.j-N/2);
-                            return ca - cb;
-                        });
+                    function orderMoves(b){
+                        const moves=[];
+                        for(let i=0;i<M;i++) for(let j=0;j<N;j++) if(b[i][j]===0)moves.push({i,j});
+                        moves.sort((a,b)=>(Math.abs(a.i-M/2)+Math.abs(a.j-N/2))-(Math.abs(b.i-M/2)+Math.abs(b.j-N/2)));
                         return moves;
                     }
-
-                    function minimax(board, depth, isMax, alpha, beta) {
-                        if (Date.now() - startTime > timeLimitMs) return null;
-                        if (checkWin(board, 2)) return WIN_SCORE + depth;
-                        if (checkWin(board, 1)) return -WIN_SCORE - depth;
-                        if (isBoardFull(board)) return 0;
-                        if (depth === 0) return heuristic(board);
-
-                        const moves = getOrderedMoves(board);
-                        if (isMax) {
-                            let best = -Infinity;
-                            for (const {i,j} of moves) {
-                                board[i][j] = 2;
-                                const val = minimax(board, depth-1, false, alpha, beta);
-                                board[i][j] = 0;
-                                if (val === null) return null;
-                                best = Math.max(best, val);
-                                alpha = Math.max(alpha, best);
-                                if (beta <= alpha) break;
+                    function minimax(b,depth,isMax,alpha,beta){
+                        if(Date.now()-startTime>timeLimitMs)return null;
+                        if(checkWin(b,2))return WIN_SCORE+depth;
+                        if(checkWin(b,1))return -WIN_SCORE-depth;
+                        if(isFull(b))return 0;
+                        if(depth===0)return heuristic(b);
+                        const moves=orderMoves(b);
+                        if(isMax){
+                            let best=-Infinity;
+                            for(const {i,j} of moves){
+                                b[i][j]=2;
+                                const val=minimax(b,depth-1,false,alpha,beta);
+                                b[i][j]=0;
+                                if(val===null)return null;
+                                best=Math.max(best,val);
+                                alpha=Math.max(alpha,best);
+                                if(beta<=alpha)break;
                             }
                             return best;
-                        } else {
-                            let best = Infinity;
-                            for (const {i,j} of moves) {
-                                board[i][j] = 1;
-                                const val = minimax(board, depth-1, true, alpha, beta);
-                                board[i][j] = 0;
-                                if (val === null) return null;
-                                best = Math.min(best, val);
-                                beta = Math.min(beta, best);
-                                if (beta <= alpha) break;
+                        }else{
+                            let best=Infinity;
+                            for(const {i,j} of moves){
+                                b[i][j]=1;
+                                const val=minimax(b,depth-1,true,alpha,beta);
+                                b[i][j]=0;
+                                if(val===null)return null;
+                                best=Math.min(best,val);
+                                beta=Math.min(beta,best);
+                                if(beta<=alpha)break;
                             }
                             return best;
                         }
                     }
-
-                    function findBestMove(board) {
+                    function findBestMove(b){
                         // immediate win/block
-                        for (const line of winningLines) {
-                            let cnt=0, empty=null;
-                            for (const [i,j] of line) {
-                                if (board[i][j]===2) cnt++;
-                                else if (board[i][j]===0) empty=[i,j];
+                        for(const l of winningLines){
+                            let cnt=0,empty=null;
+                            for(const [i,j] of l){
+                                if(b[i][j]===2)cnt++; else if(b[i][j]===0)empty=[i,j];
                             }
-                            if (cnt===K-1 && empty) return empty;
+                            if(cnt===K-1&&empty)return empty;
                         }
-                        for (const line of winningLines) {
-                            let cnt=0, empty=null;
-                            for (const [i,j] of line) {
-                                if (board[i][j]===1) cnt++;
-                                else if (board[i][j]===0) empty=[i,j];
+                        for(const l of winningLines){
+                            let cnt=0,empty=null;
+                            for(const [i,j] of l){
+                                if(b[i][j]===1)cnt++; else if(b[i][j]===0)empty=[i,j];
                             }
-                            if (cnt===K-1 && empty) return empty;
+                            if(cnt===K-1&&empty)return empty;
                         }
-
-                        // iterative deepening
-                        let bestMove = null;
-                        let depth = 1;
-                        startTime = Date.now();
-                        while (Date.now() - startTime < timeLimitMs) {
-                            const moves = getOrderedMoves(board);
-                            let bestScore = -Infinity;
-                            let currentBest = null;
-                            for (const {i,j} of moves) {
-                                board[i][j] = 2;
-                                const score = minimax(board, depth-1, false, -Infinity, Infinity);
-                                board[i][j] = 0;
-                                if (score === null) break;
-                                if (score > bestScore) {
-                                    bestScore = score;
-                                    currentBest = {i,j};
+                        let bestMove=null;
+                        let depth=1;
+                        startTime=Date.now();
+                        while(Date.now()-startTime<timeLimitMs){
+                            const moves=orderMoves(b);
+                            let bestScore=-Infinity;
+                            let currentBest=null;
+                            for(const {i,j} of moves){
+                                b[i][j]=2;
+                                const score=minimax(b,depth-1,false,-Infinity,Infinity);
+                                b[i][j]=0;
+                                if(score===null)break;
+                                if(score>bestScore){
+                                    bestScore=score;
+                                    currentBest={i,j};
                                 }
-                                if (Date.now() - startTime > timeLimitMs) break;
+                                if(Date.now()-startTime>timeLimitMs)break;
                             }
-                            if (currentBest) bestMove = currentBest;
-                            if (bestScore >= WIN_SCORE) break;
+                            if(currentBest) bestMove=currentBest;
+                            if(bestScore>=WIN_SCORE)break;
                             depth++;
-                            if (Date.now() - startTime > timeLimitMs) break;
                         }
-                        if (!bestMove) {
-                            // fallback random
-                            const empty = [];
-                            for (let i=0;i<M;i++) for (let j=0;j<N;j++) if (board[i][j]===0) empty.push({i,j});
-                            bestMove = empty[Math.floor(Math.random()*empty.length)];
+                        if(!bestMove){
+                            const empty=[];
+                            for(let i=0;i<M;i++) for(let j=0;j<N;j++) if(b[i][j]===0)empty.push({i,j});
+                            bestMove=empty[Math.floor(Math.random()*empty.length)] || {i:0,j:0}; // fallback
                         }
                         return bestMove;
                     }
-
-                    onmessage = function(e) {
-                        const { board: b, M: m, N: n, K: k, timeLimitMs: t } = e.data;
+                    onmessage=function(e){
+                        const {board:b, M:m, N:n, K:k, timeLimitMs:t}=e.data;
                         M=m; N=n; K=k;
-                        board = b.map(row => [...row]);
-                        timeLimitMs = t;
-                        winningLines = getWinningLines(M,N,K);
-                        const move = findBestMove(board);
-                        postMessage({ move });
+                        board=b.map(row=>[...row]);
+                        timeLimitMs=t;
+                        winningLines=getLines(M,N,K);
+                        const move=findBestMove(board);
+                        postMessage({move});
                     };
                 `;
-                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                const blob = new Blob([code], { type: 'application/javascript' });
                 return new Worker(URL.createObjectURL(blob));
-            }
+            };
 
-            function requestAIMove() {
+            const requestAIMove = () => {
                 if (worker) worker.terminate();
                 worker = createWorker();
-                const timeMs = timeLimitSec * 1000;
-                worker.postMessage({ board, M, N, K, timeLimitMs: timeMs });
+                worker.postMessage({ board, M, N, K, timeLimitMs: timeLimitSec * 1000 });
 
                 worker.onmessage = (e) => {
                     const { move } = e.data;
                     worker.terminate();
                     worker = null;
                     showAIOverlay(false);
-                    if (move && !gameOver) {
-                        makeMove(move.i, move.j, 2);
-                    } else if (!gameOver) {
-                        // fallback: pick random empty
-                        const empty = [];
-                        for (let i=0;i<M;i++) for (let j=0;j<N;j++) if (board[i][j]===0) empty.push({i,j});
-                        if (empty.length) makeMove(empty[0].i, empty[0].j, 2);
-                    }
+
+                    if (gameOver) return;   // game already finished
+                    if (!move || move.i == null || move.j == null) return;
+                    if (move.i < 0 || move.i >= M || move.j < 0 || move.j >= N) return;
+                    if (board[move.i][move.j] !== 0) return;
+
+                    makeMove(move.i, move.j, 2);
                 };
+
                 worker.onerror = () => {
                     showAIOverlay(false);
                     updateStatus('⚠️', 'AI error', 'Try again');
                 };
-            }
+            };
 
-            // ---------- Event Listeners ----------
+            // ---------- Event listeners ----------
             applyBtn.addEventListener('click', startNewGame);
             newGameBtn.addEventListener('click', startNewGame);
             undoBtn.addEventListener('click', undoLastMoves);
             resetSettingsBtn.addEventListener('click', () => {
-                mInput.value = 3;
-                nInput.value = 3;
-                kInput.value = 3;
-                timeInput.value = 4;
+                mInput.value = 3; nInput.value = 3; kInput.value = 3; timeInput.value = 4;
                 document.querySelector('input[name="mode"][value="ai"]').checked = true;
                 document.querySelector('input[name="starter"][value="user"]').checked = true;
                 body.classList.remove('dark-mode');
@@ -1053,24 +905,20 @@
                 startNewGame();
             });
 
-            // Show/hide starter group based on mode
-            function updateStarterVisibility() {
-                const mode = document.querySelector('input[name="mode"]:checked').value;
-                starterGroup.style.display = mode === 'ai' ? 'flex' : 'none';
-            }
+            const updateStarterVisibility = () => {
+                starterGroup.style.display = document.querySelector('input[name="mode"]:checked').value === 'ai' ? 'flex' : 'none';
+            };
             modeRadios.forEach(r => r.addEventListener('change', updateStarterVisibility));
 
-            // Auto-save on any input change
-            [mInput,nInput,kInput,timeInput].forEach(el => el.addEventListener('change', saveSettings));
+            [mInput, nInput, kInput, timeInput].forEach(el => el.addEventListener('change', saveSettings));
             modeRadios.forEach(r => r.addEventListener('change', saveSettings));
             starterRadios.forEach(r => r.addEventListener('change', saveSettings));
 
-            // ---------- Initialize ----------
+            // ---------- Initialization ----------
             loadSettings();
             updateStarterVisibility();
-            startNewGame(); // auto-start with loaded/default settings
+            startNewGame();
 
-            // Cleanup worker on page unload
             window.addEventListener('beforeunload', () => {
                 if (worker) worker.terminate();
             });
